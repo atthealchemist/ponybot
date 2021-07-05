@@ -32,3 +32,17 @@ class PonyTestCase(TransactionTestCase):
         self.assertIsNotNone(my_pony.satiety)
         self.assertGreater(my_pony.satiety, 1)
         self.assertLess(my_pony.satiety, my_pony.experience + 14)
+
+    def test_pony_feed(self):
+        my_pony = Pony(name="Fluttershy")
+        satiety_before = my_pony.satiety
+        my_pony.feed()
+        self.assertGreater(my_pony.satiety, satiety_before)
+
+        aj_pony = Pony(
+            name="Applejack",
+            satiety=14
+        )
+        satiety_before = aj_pony.satiety
+        aj_pony.feed()
+        self.assertEqual(aj_pony.satiety, satiety_before)
