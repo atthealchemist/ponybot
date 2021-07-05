@@ -1,5 +1,6 @@
 import uuid
 from django.utils import timezone
+from string import Template
 
 from django.db import models
 from django.utils.translation import gettext as _
@@ -34,3 +35,18 @@ class Pony(models.Model):
         self.first_feeding = timezone.now()
         self.satiety += 1
         self.save(update_fields=['satiety', 'first_feeding'])
+
+    def __str__(self):
+        pony_stats_template = Template(
+            """
+            Name: $name
+            Experience: $experience
+            Satiety: $satiety
+            """
+        )
+
+        return _(pony_stats_template.safe_substitute(
+            name=self.name,
+            experience=self.experience,
+            satiety=self.satiety
+        ))
