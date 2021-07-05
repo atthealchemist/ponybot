@@ -18,3 +18,11 @@ class PonyTestCase(TransactionTestCase):
             name="Pinkie Pie"
         )
         self.assertNotEqual(my_pony.name, pinkie.name)
+
+    def test_pony_has_default_experience(self):
+        my_pony = Pony(
+            name="Lauren"
+        )
+        self.assertIsNotNone(my_pony.experience, 1)
+        self.assertGreater(my_pony.experience, 0)
+        self.assertLess(my_pony.experience, 10)
