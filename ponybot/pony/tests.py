@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.test import TestCase, TransactionTestCase
 from .models import Pony
 
@@ -46,3 +48,15 @@ class PonyTestCase(TransactionTestCase):
         satiety_before = aj_pony.satiety
         aj_pony.feed()
         self.assertEqual(aj_pony.satiety, satiety_before)
+
+    def test_pony_last_feeded(self):
+        my_pony = Pony(
+            name="Rainbow Dash"
+        )
+
+        my_pony.feed()
+
+        self.assertEqual(
+            (my_pony.last_feeding.hour, my_pony.last_feeding.minute),
+            (datetime.now().hour, datetime.now().minute)
+        )
