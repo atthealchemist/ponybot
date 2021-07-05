@@ -68,3 +68,8 @@ class PonyTestCase(TransactionTestCase):
 
         my_pony.feed()
         self.assertNotEqual(my_pony.first_feeding, my_pony.last_feeding)
+
+    def test_pony_stats(self):
+        my_pony = Pony(name="Derpy Hooves")
+
+        self.assertIn('Derpy', str(my_pony))
