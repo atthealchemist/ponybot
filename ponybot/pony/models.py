@@ -15,3 +15,7 @@ class Pony(models.Model):
             MaxValueValidator(10)
         ]
     )
+    satiety = models.PositiveSmallIntegerField(
+        _("Pony satiety"),
+        default=10
+    )
