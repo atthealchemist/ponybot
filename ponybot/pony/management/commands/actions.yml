@@ -1,0 +1,28 @@
+commands:
+
+  create_pony:
+    aliases:
+      - создать пони
+      - завести пони
+      - новая пони
+    action: create_pony
+  
+  feed_pony:
+    aliases:
+      - покормить пони
+      - накормить пони
+    action: feed_pony
+  
+  my_pony:
+    aliases:
+      - моя пони
+      - пони инфо
+    action: my_pony_info
+  
+  get_id:
+    aliases:
+      - мой ид
+      - мой id
+      - инфо
+    action: get_id
+
