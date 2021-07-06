@@ -87,3 +87,21 @@ def test_pony_stats():
     my_pony = Pony.objects.create(name="Derpy Hooves")
 
     assert 'Derpy' in str(my_pony)
+
+
+@pytest.mark.django_db
+def test_pony_lifecycle_is_pony_alive():
+    my_pony = Pony.objects.create(name="Spike")
+
+    assert my_pony.is_alive is True
+
+
+@pytest.mark.django_db
+def test_pony_lifecycle_dead_pony_should_not_eat():
+    my_pony = Pony.objects.create(name="Flutter Bat", is_alive=False)
+
+    my_pony.die()
+    my_pony.feed()
+
+    assert my_pony.satiety == 0
+    assert my_pony.experience == 0
