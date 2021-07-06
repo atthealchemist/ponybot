@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party apps
-    'restframework',
+    'rest_framework',
     # User defined apps
     'pony'
 ]
