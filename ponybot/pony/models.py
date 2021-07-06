@@ -28,6 +28,7 @@ class Pony(models.Model):
     last_feeding = models.DateTimeField(
         null=True, auto_now=True
     )
+    is_alive = models.BooleanField(_("Is pony alive"), default=True)
 
     def feed(self):
         if self.satiety >= self.experience * 14:
