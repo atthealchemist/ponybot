@@ -30,8 +30,18 @@ class Pony(models.Model):
     )
     is_alive = models.BooleanField(_("Is pony alive"), default=True)
 
+    def reset_stats(self):
+        self.satiety = 0
+        self.experience = 0
+        self.save(update_fields=['satiety', 'experience'])
+
+    def die(self):
+        self.reset_stats()
+        self.is_alive = False
+        self.save(update_fields=['is_alive'])
+
     def feed(self):
-        if self.satiety >= self.experience * 14:
+        if any([self.satiety >= self.experience * 14, not self.is_alive]):
             return
         self.first_feeding = timezone.now()
         self.satiety += 1
