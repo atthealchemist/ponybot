@@ -1,7 +1,6 @@
-from django.db.models.fields import CharField
-from pony.exceptions import PonyOverfeedException
+from datetime import timedelta
+from pony.exceptions import PonyOverfeedException, PonyTiredException
 import uuid
-import math
 from django.db.models.enums import TextChoices
 
 from django.utils import timezone
@@ -11,7 +10,6 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from django.contrib.auth import get_user_model
 
 # Create your models here.
 
@@ -84,7 +82,10 @@ class Pony(models.Model):
         self.save(update_fields=['satiety', 'experience'])
 
     def learn(self):
-        points = self.satiety + (math.abs(10 - self.satiety) / 2) - 5
+        if self.last_learning < self.last_learning + timedelta(minutes=5):
+            raise PonyTiredException(
+                f"Ваша пони ({self.name}) слишком устала, попробуйте через 5 минут...")
+        points = self.satiety + (abs(10 - self.satiety) / 2) - 5
 
         self.experience += points
         self.last_learning = timezone.now()
@@ -105,6 +106,9 @@ class Pony(models.Model):
         if self.satiety >= self.experience * 14:
             raise PonyOverfeedException(
                 "Ваша пони объелась и не может больше есть")
+        if self.last_feeding < self.last_feeding + timedelta(minutes=2):
+            raise PonyOverfeedException(
+                f"Ваша пони ({self.name}) ела совсем недавно ({self.last_feeding}), попробуйте через 2 минуты...")
         self.last_feeding = timezone.now()
         self.satiety += 1
         self.save(update_fields=['satiety', 'last_feeding'])
@@ -119,6 +123,9 @@ class Pony(models.Model):
             ---
             Owner: $owner
             Conversation: $conversation
+            ---
+            Last learning: $last_learning
+            Last feeding: $last_feeding
             """
         )
 
@@ -129,7 +136,9 @@ class Pony(models.Model):
             experience=self.experience,
             satiety=self.satiety,
             owner=self.owner,
-            conversation=self.conversation
+            conversation=self.conversation,
+            last_learning=self.last_learning,
+            last_feeding=self.last_feeding
         ))
 
     class Meta:

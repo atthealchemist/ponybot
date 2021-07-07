@@ -50,6 +50,8 @@ class DialogAction(SimpleAction):
         self.notifier(user_id, question)
         for event in self.long_poll.listen():
             if event.type == VkBotEventType.MESSAGE_NEW:
+                if 'action' in event.object.message:
+                    break
                 message = event.object.message.get('text')
                 if answer_message:
                     self.notifier(

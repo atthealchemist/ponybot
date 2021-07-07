@@ -1,5 +1,5 @@
 from math import e
-from pony.exceptions import PonyOverfeedException
+from pony.exceptions import PonyTiredException
 from bot.actions.create_pony import ActionCreatePony
 from django.utils.translation import gettext as _
 
@@ -8,16 +8,15 @@ from pony.models import Pony
 from .base import SimpleAction
 
 
-class ActionFeedPony(SimpleAction):
+class ActionTeachPony(SimpleAction):
 
     def __init__(self, notifier=None):
         super().__init__(notifier)
 
         self.aliases = [
-            'кормить пони',
-            'покормить пони',
-            'покормить',
-            'покушать'
+            'учить пони',
+            'отправиться в библиотеку',
+            'пойти в библиотеку'
         ]
 
     def call(self, event):
@@ -33,8 +32,8 @@ class ActionFeedPony(SimpleAction):
             return
         user_pony = user_ponies.first()
         try:
-            user_pony.feed()
+            user_pony.learn()
             self.notifier(peer_id, _(
-                f"Ваша пони ({user_pony.name}) покушала и теперь её сытость равна {user_pony.satiety}"))
-        except PonyOverfeedException as ex:
+                f"Ваша пони ({user_pony.name}) учится! Теперь её опыт равен {user_pony.experience}"))
+        except PonyTiredException as ex:
             self.notifier(peer_id, _(str(ex)))

@@ -20,7 +20,7 @@ class ActionCreatePony(DialogAction):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
 
-        if Pony.objects.filter(conversation=peer_id).exists():
+        if Pony.objects.filter(owner=user_id, conversation=peer_id, is_alive=True).exists():
             self.notifier(peer_id, _(
                 "Вы не можете иметь более одной пони в беседе!"))
             return

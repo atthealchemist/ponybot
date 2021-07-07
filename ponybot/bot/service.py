@@ -1,3 +1,4 @@
+from bot.actions.teach_pony import ActionTeachPony
 from bot.actions.kill_pony import ActionKillPony
 from bot.actions.feed_pony import ActionFeedPony
 import logging
@@ -45,6 +46,7 @@ class PonybotService:
                 notifier=self.send_from_bot
             ),
             ActionFeedPony(notifier=self.send_from_bot),
+            ActionTeachPony(notifier=self.send_from_bot),
             ActionKillPony(
                 notifier=self.send_from_bot,
                 long_poll=self.long_poll
@@ -96,6 +98,8 @@ class PonybotService:
         try:
             for event in self.long_poll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW:
+                    if 'action' in event.object.message:
+                        break
                     self.on_user_send_event(event)
                 elif event.type == VkBotEventType.MESSAGE_REPLY:
                     self.on_bot_send_event(event)
