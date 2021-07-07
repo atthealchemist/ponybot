@@ -21,7 +21,7 @@ class ActionMyPonyProfile(SimpleAction):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
 
-        user_ponies = Pony.objects.filter(owner=user_id)
+        user_ponies = Pony.objects.filter(owner=user_id, is_alive=True)
         if not user_ponies.exists():
             self.notifier(peer_id, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"

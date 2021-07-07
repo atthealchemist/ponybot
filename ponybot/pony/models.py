@@ -116,6 +116,9 @@ class Pony(models.Model):
             Sex: $sex
             Experience: $experience
             Satiety: $satiety
+            ---
+            Owner: $owner
+            Conversation: $conversation
             """
         )
 
@@ -124,7 +127,9 @@ class Pony(models.Model):
             dead=_("(мертва)") if not self.is_alive else "",
             sex=self.sex,
             experience=self.experience,
-            satiety=self.satiety
+            satiety=self.satiety,
+            owner=self.owner,
+            conversation=self.conversation
         ))
 
     class Meta:

@@ -6,6 +6,7 @@ from bot.actions.my_pony import ActionMyPonyProfile
 from bot.actions.create_pony import ActionCreatePony
 from bot.actions import ActionNamePony, ActionGetId
 from django.utils.translation import gettext as _
+from django.utils import timezone
 from django.conf import settings
 
 from vk_api import VkApi
@@ -91,13 +92,15 @@ class PonybotService:
         if not self.is_running:
             return
 
-        self.logger.info("Started vk bot, listening...")
-
-        for event in self.long_poll.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                self.on_user_send_event(event)
-            elif event.type == VkBotEventType.MESSAGE_REPLY:
-                self.on_bot_send_event(event)
+        self.logger.info(f"Started vk bot @ {timezone.now()}, listening...")
+        try:
+            for event in self.long_poll.listen():
+                if event.type == VkBotEventType.MESSAGE_NEW:
+                    self.on_user_send_event(event)
+                elif event.type == VkBotEventType.MESSAGE_REPLY:
+                    self.on_bot_send_event(event)
+        except KeyboardInterrupt:
+            self.logger.info(f"Stopping vk bot @ {timezone.now()}, exiting...")
 
     def stop(self):
         if self.is_running:
