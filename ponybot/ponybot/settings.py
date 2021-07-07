@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import sys
 
 from configurations import Configuration, values
 from pathlib import Path
@@ -39,8 +40,31 @@ class BaseConfiguration(Configuration):
         'rest_framework',
         'django_celery_beat',
         # User defined apps
-        'pony'
+        'pony',
+        'bot'
     ]
+
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'console': {
+                'format': '[%(asctime)s] [%(name)s - %(levelname)s] %(message)s',
+            },
+        },
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'console',
+            },
+        },
+        'loggers': {
+            'Ponybot': {
+                'level': 'DEBUG',
+                'handlers': ['console'],
+            },
+        },
+    }
 
     MIDDLEWARE = [
         'django.middleware.security.SecurityMiddleware',

@@ -1,0 +1,3 @@
+
+class PonyOverfeedException(Exception):
+    pass
