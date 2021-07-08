@@ -10,6 +10,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from constance import config
 
 # Create your models here.
 
@@ -82,9 +83,10 @@ class Pony(models.Model):
         self.save(update_fields=['satiety', 'experience'])
 
     def learn(self):
-        if self.last_learning < self.last_learning + timedelta(minutes=5):
+        learning_timeout = config.PONY_LEARNING_TIMEOUT_MINS
+        if self.last_learning < self.last_learning + timedelta(minutes=learning_timeout):
             raise PonyTiredException(
-                f"Ваша пони ({self.name}) слишком устала, попробуйте через 5 минут...")
+                f"Ваша пони ({self.name}) слишком устала, попробуйте через {learning_timeout} минут...")
         points = self.satiety + (abs(10 - self.satiety) / 2) - 5
 
         self.experience += points
@@ -103,12 +105,13 @@ class Pony(models.Model):
         self.save(update_fields=['is_alive'])
 
     def feed(self):
+        feeding_timeout = config.PONY_FEEDING_TIMEOUT_MINS
         if self.satiety >= self.experience * 14:
             raise PonyOverfeedException(
                 "Ваша пони объелась и не может больше есть")
-        if self.last_feeding < self.last_feeding + timedelta(minutes=2):
+        if self.last_feeding < self.last_feeding + timedelta(minutes=feeding_timeout):
             raise PonyOverfeedException(
-                f"Ваша пони ({self.name}) ела совсем недавно ({self.last_feeding}), попробуйте через 2 минуты...")
+                f"Ваша пони ({self.name}) ела совсем недавно ({self.last_feeding}), попробуйте через {feeding_timeout} минут...")
         self.last_feeding = timezone.now()
         self.satiety += 1
         self.save(update_fields=['satiety', 'last_feeding'])

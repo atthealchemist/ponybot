@@ -37,12 +37,22 @@ class BaseConfiguration(Configuration):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         # Third-party apps
+        'constance',
+        'constance.backends.database',
         'rest_framework',
         'django_celery_beat',
         # User defined apps
         'pony',
         'bot'
     ]
+
+    # Constance Config
+    CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+
+    CONSTANCE_CONFIG = {
+        'PONY_LEARNING_TIMEOUT_MINS': (5, 'Pony learning timeout (in mins)', int),
+        'PONY_FEEDING_TIMEOUT_MINS': (7, 'Pony feeding timeout (in mins)', int)
+    }
 
     LOGGING = {
         'version': 1,
