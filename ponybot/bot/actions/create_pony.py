@@ -6,9 +6,9 @@ from pony.models import Pony, PonySex
 
 class ActionCreatePony(DialogAction):
 
-    def __init__(self, notifier=None, long_poll=None):
+    def __init__(self, notifier=None):
         self.notifier = notifier
-        self.long_poll = long_poll
+
         self.aliases = [
             'создать пони',
             'завести пони'
@@ -21,7 +21,7 @@ class ActionCreatePony(DialogAction):
         peer_id = event.object.message.get('peer_id')
 
         if Pony.objects.filter(owner=user_id, conversation=peer_id, is_alive=True).exists():
-            self.notifier(peer_id, _(
+            self.notifier.notify(peer_id, _(
                 "Вы не можете иметь более одной пони в беседе!"))
             return
 
@@ -41,7 +41,7 @@ class ActionCreatePony(DialogAction):
         new_pony.set_owner(user_id)
         new_pony.set_conversation(peer_id)
 
-        self.notifier(
+        self.notifier.notify(
             peer_id,
             _(f"Ваша пони:  {new_pony}")
         )

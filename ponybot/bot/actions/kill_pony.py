@@ -8,8 +8,8 @@ from .base import DialogAction
 
 class ActionKillPony(DialogAction):
 
-    def __init__(self, notifier=None, long_poll=None):
-        super().__init__(notifier, long_poll)
+    def __init__(self, notifier=None):
+        super().__init__(notifier)
 
         self.aliases = [
             'убить пони',
@@ -28,9 +28,10 @@ class ActionKillPony(DialogAction):
         dead_pony = Pony.objects.filter(
             name__icontains=pony_to_kill, owner=user_id)
         if not dead_pony.exists():
-            self.notifier(peer_id, _(f"Такой пони не существует у {user_id}"))
+            self.notifier.notify(peer_id, _(
+                f"Такой пони не существует у {user_id}"))
             return
         dead_pony = dead_pony.first()
 
         dead_pony.die()
-        self.notifier(peer_id, _(f"Пони {dead_pony.name} умерла."))
+        self.notifier.notify(peer_id, _(f"Пони {dead_pony.name} умерла."))

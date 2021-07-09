@@ -96,6 +96,8 @@ class Pony(models.Model):
         return points
 
     def hunger(self):
+        if self.satiety < 1:
+            self.die()
         self.satiety -= 1
         self.save(update_fields=['satiety'])
 

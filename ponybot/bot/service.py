@@ -1,11 +1,9 @@
-from bot.actions.teach_pony import ActionTeachPony
-from bot.actions.kill_pony import ActionKillPony
-from bot.actions.feed_pony import ActionFeedPony
+from bot.notifier import VkNotifier
 import logging
+import pkgutil
+import inspect
+import importlib
 
-from bot.actions.my_pony import ActionMyPonyProfile
-from bot.actions.create_pony import ActionCreatePony
-from bot.actions import ActionNamePony, ActionGetId
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from django.conf import settings
@@ -18,11 +16,13 @@ from vk_api.utils import get_random_id
 class PonybotService:
 
     def __init__(self, private=False):
-        self.session = VkApi(
-            token=settings.VK_API_TOKEN,
-        )
-        self.long_poll = VkBotLongPoll(self.session, settings.VK_GROUP_ID)
-        self.api = self.session.get_api()
+        # self.session = VkApi(
+        #     token=settings.VK_API_TOKEN,
+        # )
+        # self.long_poll = VkBotLongPoll(self.session, settings.VK_GROUP_ID)
+        # self.api = self.session.get_api()
+
+        self.notifier = VkNotifier()
 
         self.is_running = False
         self.case_sensitive = False
@@ -31,39 +31,49 @@ class PonybotService:
         self.logger = logging.getLogger("Ponybot")
 
         self.actions = [
-            ActionCreatePony(
-                notifier=self.send_from_bot,
-                long_poll=self.long_poll
-            ),
-            ActionNamePony(
-                notifier=self.send_from_bot,
-                long_poll=self.long_poll
-            ),
-            ActionGetId(
-                notifier=self.send_from_bot
-            ),
-            ActionMyPonyProfile(
-                notifier=self.send_from_bot
-            ),
-            ActionFeedPony(notifier=self.send_from_bot),
-            ActionTeachPony(notifier=self.send_from_bot),
-            ActionKillPony(
-                notifier=self.send_from_bot,
-                long_poll=self.long_poll
-            )
+            action_cls(
+                notifier=self.notifier
+            ) for action_cls in self.load_actions()
         ]
+
+    def load_actions(self):
+        actions = []
+
+        # find all action modules
+        search_path = ['bot/actions/']
+        all_actions = [
+            a
+            for _, a, *_
+            in pkgutil.iter_modules(path=search_path)
+        ]
+
+        # load all modules
+        for action in all_actions:
+            if action == 'base':
+                continue
+            module_path = f'bot.actions.{action}'
+            action_classes = [
+                _cls
+                for _, _cls in inspect.getmembers(importlib.import_module(module_path), inspect.isclass)
+                if _cls.__module__ == module_path
+            ]
+            actions += action_classes
+
+        return actions
 
     def start(self):
         if not self.is_running:
             self.is_running = True
+            self.logger.debug(
+                f"Auto loaded actions: {self.actions}")
             self.__process()
 
-    def send_from_bot(self, peer_id, message):
-        self.api.messages.send(
-            peer_id=peer_id,
-            message=message,
-            random_id=get_random_id()
-        )
+    # def send_from_bot(self, peer_id, message):
+    #     self.api.messages.send(
+    #         peer_id=peer_id,
+    #         message=message,
+    #         random_id=get_random_id()
+    #     )
 
     def on_bot_send_event(self, event):
         self.logger.debug(f'message_reply evt {event}')
@@ -96,7 +106,7 @@ class PonybotService:
 
         self.logger.info(f"Started vk bot @ {timezone.now()}, listening...")
         try:
-            for event in self.long_poll.listen():
+            for event in self.notifier.long_poll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     if 'action' in event.object.message:
                         break

@@ -1,11 +1,12 @@
-from .base import Action
+from .base import SimpleAction
 from django.utils.translation import gettext as _
 
 
-class ActionGetId(Action):
+class ActionGetId(SimpleAction):
 
     def __init__(self, notifier=None):
-        self.notifier = notifier
+        super().__init__(notifier)
+
         self.aliases = [
             'мой ид',
             'мой id'
@@ -14,7 +15,7 @@ class ActionGetId(Action):
     def call(self, event):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
-        self.notifier(peer_id,
+        self.notifier.notify(peer_id,
                       _(f"""
                       Ваш ID (user_id/from_id): {user_id}
                       ID группы (group_id): {event.group_id}

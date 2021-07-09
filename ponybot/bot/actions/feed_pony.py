@@ -25,16 +25,19 @@ class ActionFeedPony(SimpleAction):
         peer_id = event.object.message.get('peer_id')
 
         user_ponies = Pony.objects.filter(
-            owner=user_id, conversation=peer_id, is_alive=True)
+            owner=user_id,
+            # conversation=peer_id,
+            is_alive=True
+        )
         if not user_ponies.exists():
-            self.notifier(peer_id, _(
+            self.notifier.notify(peer_id, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
             ))
             return
         user_pony = user_ponies.first()
         try:
             user_pony.feed()
-            self.notifier(peer_id, _(
+            self.notifier.notify(peer_id, _(
                 f"Ваша пони ({user_pony.name}) покушала и теперь её сытость равна {user_pony.satiety}"))
         except PonyOverfeedException as ex:
-            self.notifier(peer_id, _(str(ex)))
+            self.notifier.notify(peer_id, _(str(ex)))

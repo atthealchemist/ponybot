@@ -142,6 +142,9 @@ class BaseConfiguration(Configuration):
 
     STATIC_URL = '/static/'
 
+    CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+    CELERY_BROKER_URL = "pyamqp://guest@localhost//"
+
 
 class Dev(BaseConfiguration):
     # SECURITY WARNING: don't run with debug turned on in production!
@@ -157,20 +160,6 @@ class Dev(BaseConfiguration):
     REST_FRAMEWORK = {
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 10
-    }
-
-    # Celery Beat Schedule
-    CELERY_BEAT_SCHEDULE = {
-        "scheduled_task__teach_ponies": {
-            "task": "pony.tasks.teach_ponies",
-            "schedule": 1.0,
-            "args": ()
-        },
-        "scheduled_task__hunger_ponies": {
-            "task": "pony.tasks.hunger_ponies",
-            "schedule": 1.0,
-            "args": ()
-        },
     }
 
 

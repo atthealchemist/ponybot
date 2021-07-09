@@ -1,5 +1,4 @@
 from abc import ABC as AbstractBase, abstractmethod
-from abc import abstractmethod
 
 from django.utils.translation import gettext as _
 from bot.utils import camel_to_snake
@@ -41,20 +40,21 @@ class Action(AbstractBase):
 class SimpleAction(Action):
 
     def __init__(self, notifier):
+        # We need to add long_poll as ctor arg cause we're auto loading all actions
         self.notifier = notifier
 
 
 class DialogAction(SimpleAction):
 
     def ask(self, user_id, question, answer_message=None):
-        self.notifier(user_id, question)
-        for event in self.long_poll.listen():
+        self.notifier.notify(user_id, question)
+        for event in self.notifier.long_poll.listen():
             if event.type == VkBotEventType.MESSAGE_NEW:
                 if 'action' in event.object.message:
                     break
                 message = event.object.message.get('text')
                 if answer_message:
-                    self.notifier(
+                    self.notifier.notify(
                         user_id,
                         answer_message.format(message)
                     )
@@ -70,11 +70,9 @@ class DialogAction(SimpleAction):
             )
             if answer in choices:
                 break
-            self.notifier(user_id, _(
+            self.notifier.notify(user_id, _(
                 "Такого варианта нет среди предложенных!"))
         return answer
 
-    def __init__(self, notifier, long_poll):
+    def __init__(self, notifier):
         super().__init__(notifier=notifier)
-
-        self.long_poll = long_poll

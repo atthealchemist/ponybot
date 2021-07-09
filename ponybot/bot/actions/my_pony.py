@@ -23,13 +23,13 @@ class ActionMyPonyProfile(SimpleAction):
 
         user_ponies = Pony.objects.filter(owner=user_id, is_alive=True)
         if not user_ponies.exists():
-            self.notifier(peer_id, _(
+            self.notifier.notify(peer_id, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
             ))
             return
         if user_ponies.count() > 1:
             user_id = event.object.message.get('from_id')
 
-        self.notifier(user_id if user_ponies.count() > 1 else peer_id,
+        self.notifier.notify(user_id if user_ponies.count() > 1 else peer_id,
                       _(f"Ваши пони:\n" +
                       '\n'.join([f"{i + 1}. {str(p)}" for i, p in enumerate(user_ponies)])))

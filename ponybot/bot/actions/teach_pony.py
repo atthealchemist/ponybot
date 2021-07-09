@@ -26,14 +26,14 @@ class ActionTeachPony(SimpleAction):
         user_ponies = Pony.objects.filter(
             owner=user_id, conversation=peer_id, is_alive=True)
         if not user_ponies.exists():
-            self.notifier(peer_id, _(
+            self.notifier.notify(peer_id, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
             ))
             return
         user_pony = user_ponies.first()
         try:
             user_pony.learn()
-            self.notifier(peer_id, _(
+            self.notifier.notify(peer_id, _(
                 f"Ваша пони ({user_pony.name}) учится! Теперь её опыт равен {user_pony.experience}"))
         except PonyTiredException as ex:
-            self.notifier(peer_id, _(str(ex)))
+            self.notifier.notify(peer_id, _(str(ex)))

@@ -7,9 +7,8 @@ from .base import DialogAction
 
 class ActionNamePony(DialogAction):
 
-    def __init__(self, notifier=None, long_poll=None):
+    def __init__(self, notifier=None):
         self.notifier = notifier
-        self.long_poll = long_poll
         self.aliases = [
             'дать пони имя',
             'назвать пони'
@@ -28,7 +27,7 @@ class ActionNamePony(DialogAction):
             return
         my_pony = my_pony.first()
         my_pony.set_name(new_name=new_pony_name)
-        self.notifier(
+        self.notifier.notify(
             peer_id,
             _(f"Вашу пони теперь зовут {new_pony_name}!")
         )
