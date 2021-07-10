@@ -1,8 +1,9 @@
 import uuid
-from django.utils import timezone
 from string import Template
+from datetime import timedelta
 
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -24,8 +25,10 @@ class Pony(models.Model):
         _("Pony satiety"),
         default=10
     )
-    first_feeding = models.DateTimeField(null=True, blank=True)
     last_feeding = models.DateTimeField(
+        null=True, auto_now=True
+    )
+    last_learning = models.DateTimeField(
         null=True, auto_now=True
     )
     is_alive = models.BooleanField(_("Is pony alive"), default=True)
@@ -43,9 +46,21 @@ class Pony(models.Model):
     def feed(self):
         if any([self.satiety >= self.experience * 14, not self.is_alive]):
             return
-        self.first_feeding = timezone.now()
+        self.last_feeding = timezone.now()
         self.satiety += 1
-        self.save(update_fields=['satiety', 'first_feeding'])
+        self.save(update_fields=['satiety', 'last_feeding'])
+
+    def learn(self):
+        learning_timeout = 30
+        if self.last_learning < self.last_learning + timedelta(seconds=learning_timeout):
+            return 0
+        points = self.satiety + (abs(10 - self.satiety) / 2) - 5
+
+        self.experience += points
+        self.last_learning = timezone.now()
+        self.save(update_fields=['experience', 'last_learning'])
+
+        return points
 
     def __str__(self):
         pony_stats_template = Template(
