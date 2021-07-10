@@ -7,4 +7,9 @@ from .models import Pony
 
 @admin.register(Pony)
 class PonyAdmin(admin.ModelAdmin):
-    list_display = "__all__"
+    readonly_fields = ('last_learning', 'last_feeding')
+    list_display = (
+        'name', 'sex', 'is_alive', 'owner', 'conversation',
+        'satiety', 'experience', 'last_learning', 'last_feeding'
+    )
+    list_filter = ('is_alive', 'sex', 'owner')
