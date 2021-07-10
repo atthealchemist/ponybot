@@ -141,3 +141,8 @@ class Pony(models.Model):
             last_learning=self.last_learning,
             last_feeding=self.last_feeding
         ))
+
+    class Meta:
+        verbose_name = "Pony"
+        verbose_name_plural = "Ponies"
+        ordering = ('owner', 'name',  'last_feeding', 'last_learning')
