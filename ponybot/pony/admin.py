@@ -5,6 +5,6 @@ from .models import Pony
 # Register your models here.
 
 
-@admin.register
+@admin.register(Pony)
 class PonyAdmin(admin.ModelAdmin):
     list_display = "__all__"
