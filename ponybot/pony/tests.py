@@ -1,8 +1,7 @@
-from datetime import datetime
-import time
 import pytest
 
-from django.test import TestCase, TransactionTestCase
+from datetime import datetime
+
 from .models import Pony
 
 
@@ -88,11 +87,9 @@ def test_pony_learned():
         name="Rainbow Dash"
     )
 
-    level_before = my_pony.experience
+    points = my_pony.learn()
 
-    my_pony.learn()
-
-    assert my_pony.experience > level_before
+    assert my_pony.experience == my_pony.experience + points
 
 
 @pytest.mark.django_db
