@@ -40,7 +40,8 @@ class BaseConfiguration(Configuration):
         'constance.backends.database',
         'django_celery_beat',
         # User defined apps
-        'pony'
+        'pony',
+        'bot'
     ]
 
     # Constance Config
