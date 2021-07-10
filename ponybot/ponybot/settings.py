@@ -36,6 +36,8 @@ class BaseConfiguration(Configuration):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         # Third-party apps
+        'constance',
+        'constance.backends.database',
         'django_celery_beat',
         # User defined apps
         'pony'
