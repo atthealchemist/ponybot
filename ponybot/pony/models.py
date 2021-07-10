@@ -3,6 +3,8 @@ from string import Template
 from datetime import timedelta
 
 from django.db import models
+from django.db.models.enums import TextChoices
+
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -12,9 +14,32 @@ from constance import config
 # Create your models here.
 
 
+class PonySex(TextChoices):
+    EARTHPONY = _("Земнопони")
+    PEGASUS = _("Пегас")
+    UNICORN = _("Единорог")
+    ALICORN = _("Аликорн")
+
+    @classmethod
+    def choice_list(cls):
+        return [c.value.lower() for c in cls.values]
+
+    @classmethod
+    def from_user_choice(cls, choice):
+        mapping = {
+            'пегас': cls.PEGASUS,
+            'земнопони': cls.EARTHPONY,
+            'единорог': cls.UNICORN,
+            'аликорн': cls.ALICORN
+        }
+        return mapping.get(choice)
+
+
 class Pony(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_("Pony name"), max_length=64, blank=True)
+    sex = models.CharField(
+        _("Pony sex"), max_length=12, choices=PonySex.choices, default=PonySex.EARTHPONY)
     experience = models.PositiveSmallIntegerField(
         _("Pony experience"),
         default=1,
@@ -43,6 +68,10 @@ class Pony(models.Model):
     )
     conversation = models.CharField(
         _("Conversation peer id"), max_length=16, null=True, blank=True)
+
+    def set_sex(self, sex):
+        self.sex = PonySex.from_user_choice(sex)
+        self.save(update_fields=['sex'])
 
     def set_owner(self, owner_id):
         self.owner = str(owner_id)

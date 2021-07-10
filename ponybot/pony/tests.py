@@ -1,3 +1,4 @@
+from django.db.utils import DatabaseError
 import pytest
 
 from datetime import datetime
@@ -144,3 +145,16 @@ def test_pony_set_conversation():
 
     assert my_pony.conversation == test_peer_id
     assert my_pony.conversation.isnumeric(), "Not num"
+
+
+@pytest.mark.django_db
+def test_pony_set_sex():
+    from pony.models import PonySex
+    my_pony = Pony.objects.create(name="Flutter Bat")
+    my_pony.set_sex("пегас")
+
+    assert my_pony.sex == PonySex.PEGASUS
+
+    failed = Pony.objects.create(name="Spike")
+    with pytest.raises(DatabaseError):
+        failed.set_sex("дракон")
