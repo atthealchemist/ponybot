@@ -22,8 +22,8 @@ app.conf.beat_schedule = {
         "schedule": 1.0,
         "args": ()
     },
-    "scheduled_task__hunger_ponies": {
-        "task": "pony.tasks.hunger_ponies",
+    "scheduled_task__starvy_ponies": {
+        "task": "pony.tasks.starvy_ponies",
         "schedule": 1.0,
         "args": ()
     },
