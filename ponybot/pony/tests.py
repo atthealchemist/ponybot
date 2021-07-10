@@ -124,3 +124,23 @@ def test_pony_lifecycle_dead_pony_should_not_eat():
 
     assert my_pony.satiety == 0
     assert my_pony.experience == 0
+
+
+@pytest.mark.django_db
+def test_pony_set_owner():
+    test_peer_id = "210673450"
+    my_pony = Pony.objects.create(name="Flutter Bat")
+    my_pony.set_owner(test_peer_id)
+
+    assert my_pony.owner == test_peer_id
+    assert my_pony.owner.isnumeric()
+
+
+@pytest.mark.django_db
+def test_pony_set_conversation():
+    test_peer_id = "2000000002"
+    my_pony = Pony.objects.create(name="Flutter Bat")
+    my_pony.set_conversation(test_peer_id)
+
+    assert my_pony.conversation == test_peer_id
+    assert my_pony.conversation.isnumeric(), "Not num"
