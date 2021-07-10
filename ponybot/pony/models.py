@@ -28,6 +28,9 @@ class Pony(models.Model):
     last_feeding = models.DateTimeField(
         null=True, auto_now=True
     )
+    last_learning = models.DateTimeField(
+        null=True, auto_now=True
+    )
     is_alive = models.BooleanField(_("Is pony alive"), default=True)
 
     def reset_stats(self):
@@ -46,6 +49,9 @@ class Pony(models.Model):
         self.first_feeding = timezone.now()
         self.satiety += 1
         self.save(update_fields=['satiety', 'first_feeding'])
+
+    def learn(self):
+        pass
 
     def __str__(self):
         pony_stats_template = Template(
