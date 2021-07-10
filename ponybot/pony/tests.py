@@ -1,8 +1,7 @@
-from datetime import datetime
-import time
 import pytest
 
-from django.test import TestCase, TransactionTestCase
+from datetime import datetime
+
 from .models import Pony
 
 
@@ -80,6 +79,35 @@ def test_pony_first_feed():
 
     my_pony.feed()
     assert my_pony.first_feeding != my_pony.last_feeding
+
+
+@pytest.mark.django_db
+def test_pony_learned():
+    my_pony = Pony.objects.create(
+        name="Rainbow Dash"
+    )
+
+    points = my_pony.learn()
+
+    assert my_pony.experience == my_pony.experience + points
+
+
+@pytest.mark.django_db
+def test_pony_last_learned():
+    my_pony = Pony.objects.create(
+        name="Rainbow Dash"
+    )
+
+    my_pony.learn()
+
+    my_pony_learning_hm = (
+        my_pony.last_learning.hour, my_pony.last_learning.minute
+    )
+    now_hm = (
+        datetime.now().hour, datetime.now().minute
+    )
+
+    assert my_pony_learning_hm == now_hm
 
 
 @pytest.mark.django_db
