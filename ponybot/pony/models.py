@@ -117,14 +117,27 @@ class Pony(models.Model):
     def __str__(self):
         pony_stats_template = Template(
             """
-            Name: $name
+            Name: $name $dead
+            Sex: $sex
             Experience: $experience
             Satiety: $satiety
+            ---
+            Owner: $owner
+            Conversation: $conversation
+            ---
+            Last learning: $last_learning
+            Last feeding: $last_feeding
             """
         )
 
         return _(pony_stats_template.safe_substitute(
             name=self.name,
+            dead=_("(мертва)") if not self.is_alive else "",
+            sex=self.sex,
             experience=self.experience,
-            satiety=self.satiety
+            satiety=self.satiety,
+            owner=self.owner,
+            conversation=self.conversation,
+            last_learning=self.last_learning,
+            last_feeding=self.last_feeding
         ))
