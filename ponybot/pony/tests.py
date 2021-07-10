@@ -73,15 +73,6 @@ def test_pony_last_feeded():
 
 
 @pytest.mark.django_db
-def test_pony_first_feed():
-    my_pony = Pony.objects.create(name="Sweetie Belle")
-    my_pony.feed()
-
-    my_pony.feed()
-    assert my_pony.first_feeding != my_pony.last_feeding
-
-
-@pytest.mark.django_db
 def test_pony_learned():
     my_pony = Pony.objects.create(
         name="Rainbow Dash"

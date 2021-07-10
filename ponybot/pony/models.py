@@ -25,7 +25,6 @@ class Pony(models.Model):
         _("Pony satiety"),
         default=10
     )
-    first_feeding = models.DateTimeField(null=True, blank=True)
     last_feeding = models.DateTimeField(
         null=True, auto_now=True
     )
@@ -47,9 +46,9 @@ class Pony(models.Model):
     def feed(self):
         if any([self.satiety >= self.experience * 14, not self.is_alive]):
             return
-        self.first_feeding = timezone.now()
+        self.last_feeding = timezone.now()
         self.satiety += 1
-        self.save(update_fields=['satiety', 'first_feeding'])
+        self.save(update_fields=['satiety', 'last_feeding'])
 
     def learn(self):
         learning_timeout = 30
