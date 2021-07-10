@@ -1,0 +1,156 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-10 09:22+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: bot/actions/base.py:74
+msgid "Такого варианта нет среди предложенных!"
+msgstr "There's no such variant!"
+
+#: bot/actions/create_pony.py:25
+msgid "Вы не можете иметь более одной пони в беседе!"
+msgstr "You can't have more than one pony in conversation!"
+
+#: bot/actions/create_pony.py:30
+msgid "Как вы хотите назвать вашу пони?"
+msgstr "What's your pony name?"
+
+#: bot/actions/create_pony.py:31
+#, python-brace-format
+msgid "Вашу пони теперь зовут: {0}"
+msgstr "Your pony name is named now as {0}"
+
+#: bot/actions/create_pony.py:36
+msgid "Выберите расу вашей пони: "
+msgstr "Choose the race of your pony"
+
+#: bot/actions/create_pony.py:47
+#, python-brace-format
+msgid "Ваша пони:  {new_pony}"
+msgstr "Your pony: {new_pony}"
+
+#: bot/actions/feed_pony.py:33 bot/actions/teach_pony.py:29
+msgid ""
+"У вас ещё нет ни одной пони!\n"
+"Заведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
+msgstr ""
+"You have no pony yet!\n"
+"Got it via writing one of the following actions: {str(ActionCreatePony())}"
+
+#: bot/actions/feed_pony.py:40
+#, python-brace-format
+msgid ""
+"Ваша пони ({user_pony.name}) покушала и тепеть её сытость равна {user_pony."
+"satiety}"
+msgstr ""
+"Your pony ({user_pony.name}) have got a meal, now her satiety is equal to {user_pony."
+"satiety}"
+
+#: bot/actions/get_id.py:19
+#, python-brace-format
+msgid ""
+"\n"
+"                      Ваш ID (user_id/from_id): {user_id}\n"
+"                      ID группы (group_id): {event.group_id}\n"
+"                      ID чата/беседы (peer_id): {peer_id}\n"
+"                      "
+msgstr ""
+"\n"
+"                      Your ID (user_id/from_id): {user_id}\n"
+"                      Group ID (group_id): {event.group_id}\n"
+"                      Chat/Conversation ID (peer_id): {peer_id}\n"
+"                      "
+
+#: bot/actions/teach_pony.py:36
+#, python-brace-format
+msgid ""
+"Ваша пони ({user_pony.name}) учится! Теперь её опыт равен {user_pony."
+"experience}"
+msgstr ""
+"Your pony ({user_pony.name}) has studying! Now her level is equal to {user_pony."
+"experience}"
+
+#: pony/exceptions.py:18
+#, python-brace-format
+msgid "Ваша пони {self.pony_name} объелась и не может больше есть"
+msgstr "Your pony {self.pony_name} has ate too much and can't get meal yet."
+
+#: pony/exceptions.py:26
+#, python-brace-format
+msgid ""
+"Ваша пони {self.pony_name} ела совсем недавно, попробуйте через {config."
+"PONY_FEEDING_TIMEOUT_MINS} минут..."
+msgstr ""
+"Your pony {self.pony_name} had a meal recently, try again for {config."
+"PONY_FEEDING_TIMEOUT_MINS} minutes..."
+
+#: pony/exceptions.py:34
+#, python-brace-format
+msgid ""
+"Ваша пони {self.pony_name} слишком устала, попробуйте через {config."
+"PONY_LEARNING_TIMEOUT_MINS} минут..."
+msgstr ""
+"Your pony {self.pony_name} has too tired, try again for {config."
+"PONY_LEARNING_TIMEOUT_MINS} minutes..."
+
+#: pony/models.py:19
+msgid "Земнопони"
+msgstr "Earthpony"
+
+#: pony/models.py:20
+msgid "Пегас"
+msgstr "Pegasus"
+
+#: pony/models.py:21
+msgid "Единорог"
+msgstr "Unicorn"
+
+#: pony/models.py:22
+msgid "Аликорн"
+msgstr "Alicorn"
+
+#: pony/models.py:41
+msgid "Pony name"
+msgstr "Pony name"
+
+#: pony/models.py:43
+msgid "Pony sex"
+msgstr "Pony sex"
+
+#: pony/models.py:45
+msgid "Pony experience"
+msgstr "Pony experience"
+
+#: pony/models.py:53
+msgid "Pony satiety"
+msgstr "Pony satiety"
+
+#: pony/models.py:62
+msgid "Is pony alive"
+msgstr "Is pony alive"
+
+#: pony/models.py:65
+msgid "Owner user id"
+msgstr "Owner user id"
+
+#: pony/models.py:71
+msgid "Conversation peer id"
+msgstr "Conversation peer id"
+
+#: pony/models.py:135
+msgid "(мертва)"
+msgstr "(dead)"
