@@ -33,6 +33,23 @@ class Pony(models.Model):
     )
     is_alive = models.BooleanField(_("Is pony alive"), default=True)
 
+    owner = models.CharField(
+        _("Owner user id"),
+        max_length=16,
+        null=True,
+        blank=True
+    )
+    conversation = models.CharField(
+        _("Conversation peer id"), max_length=16, null=True, blank=True)
+
+    def set_owner(self, owner_id):
+        self.owner = str(owner_id)
+        self.save(update_fields=['owner'])
+
+    def set_conversation(self, peer_id):
+        self.conversation = peer_id
+        self.save(update_fields=['conversation'])
+
     def reset_stats(self):
         self.satiety = 0
         self.experience = 0
