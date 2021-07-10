@@ -7,6 +7,8 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from constance import config
+
 # Create your models here.
 
 
@@ -61,6 +63,7 @@ class Pony(models.Model):
         self.save(update_fields=['is_alive'])
 
     def feed(self):
+        feeding_timeout = config.PONY_FEEDING_TIMEOUT_MINS
         if any([self.satiety >= self.experience * 14, not self.is_alive]):
             return
         self.last_feeding = timezone.now()
@@ -68,7 +71,7 @@ class Pony(models.Model):
         self.save(update_fields=['satiety', 'last_feeding'])
 
     def learn(self):
-        learning_timeout = 30
+        learning_timeout = config.PONY_LEARNING_TIMEOUT_MINS
         if self.last_learning < self.last_learning + timedelta(seconds=learning_timeout):
             return 0
         points = self.satiety + (abs(10 - self.satiety) / 2) - 5
