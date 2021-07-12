@@ -86,6 +86,10 @@ class Pony(models.Model):
         self.conversation = peer_id
         self.save(update_fields=['conversation'])
 
+    def set_avatar(self, avatar_url):
+        self.avatar_url = avatar_url
+        self.save(update_fields=['avatar_url'])
+
     def reset_stats(self):
         self.satiety = 0
         self.experience = 0
