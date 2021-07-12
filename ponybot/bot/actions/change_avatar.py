@@ -1,6 +1,6 @@
 
-from django.utils.translation import gettext_lazy as _
-from bot.actions.base import SimpleAction, UploadPhotoAction
+from django.utils.translation import gettext as _
+from bot.actions.base import UploadPhotoAction
 
 from pony.models import Pony
 
@@ -10,12 +10,6 @@ class ChangeAvatarAction(UploadPhotoAction):
     def call(self, event):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
-
-        photo = self.ask_photo(user_id, question=_("Прикрепите аватар вашей пони: "), declines=[
-            'нет',
-            'не надо',
-            '-'
-        ])
 
         my_pony = Pony.objects.filter(
             owner=user_id, conversation=peer_id, is_alive=True
@@ -28,6 +22,13 @@ class ChangeAvatarAction(UploadPhotoAction):
         if my_pony.avatar_url:
             self.notifier.notify(user_id, _("Картинка уже установлена!"))
             return
+
+        photo = self.ask_photo(
+            user_id,
+            question=_(
+                "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):"),
+            declines=['-', 'нет', 'не надо']
+        )
 
         my_pony.set_avatar(photo)
         self.notifier.notify(user_id,
