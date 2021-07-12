@@ -7,6 +7,9 @@ from vk_api import VkUpload
 from vk_api.bot_longpoll import VkBotEventType
 
 
+import requests
+
+
 class Action(AbstractBase):
     """
     Base class of bot Action.
@@ -81,33 +84,46 @@ class DialogAction(SimpleAction):
 
 class UploadPhotoAction(SimpleAction):
 
-    def ask_photo(self, user_id, question, album_id=-1, group_id=-1):
+    def __get_attachments(self, event):
+        res = []
+        attachments = event.object.message.get('attachments')
+        for attach in attachments:
+            res.extend([
+                s for s in attach.get('photo').get('sizes')
+                if s.get('type') == 'z'
+            ])
+        return res
+
+    def ask_photo(self, user_id, question):
         self.notifier.notify(user_id, question)
         for event in self.notifier.long_poll.listen():
+            if event.type == VkBotEventType.PHOTO_NEW:
+                print('photo_event', event)
             if event.type == VkBotEventType.MESSAGE_NEW:
                 if 'action' in event.object.message:
                     break
-                print(event)
-                # TODO: fill attachment path from event object
-                attachment_path = ""
-                photo_url = self.upload(
-                    attachment_path,
-                    album_id=album_id,
-                    group_id=group_id
-                )
 
-                return photo_url
+                # We're getting attachment url from event
+                for attachment in self.__get_attachments(event):
+                    with requests.Session() as session:
+                        image = session.get(attachment.get('url'), stream=True)
+                        photo_url = self.attach(
+                            image.raw,
+                            peer_id=user_id
+                        )
+                        return photo_url
 
-    def attach(self, photo_path, album_id=-1, group_id=-1):
+    def attach(self, photo_path, peer_id=-1):
         upload = VkUpload(vk=self.notifier.session)
 
-        photo = upload.photo(  # Подставьте свои данные
+        photo = upload.photo_messages(  # Подставьте свои данные
             photo_path,
-            album_id=album_id,
-            group_id=group_id
+            peer_id=peer_id
         )
 
-        vk_photo_url = 'https://vk.com/photo{}_{}'.format(
+        print('photo', photo)
+
+        vk_photo_url = 'photo{}_{}'.format(
             photo[0]['owner_id'], photo[0]['id']
         )
 
