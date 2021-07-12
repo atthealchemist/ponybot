@@ -1,4 +1,3 @@
-from pony.models import Pony
 from django.utils.translation import gettext_lazy as _
 
 from constance import config
@@ -9,6 +8,14 @@ class PonyException(Exception):
         self.message = None
         self.pony = pony
         self.pony_name = pony.name or ""
+
+
+class PonyDeadException(PonyException):
+    def __init__(self, pony=None):
+        super().__init__(pony=pony)
+
+    def __str__(self):
+        return _(f"Ваша пони {self.pony_name} мертва, все её действия отключены.")
 
 
 class PonyOverfeedException(PonyException):
