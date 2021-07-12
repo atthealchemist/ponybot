@@ -16,11 +16,12 @@ class Notifier(AbstractBase):
 
 class VkNotifier(Notifier):
 
-    def notify(self, sender, message):
+    def notify(self, sender, message, attachment=None):
         self.api.messages.send(
             peer_id=sender,
             message=message,
-            random_id=get_random_id()
+            random_id=get_random_id(),
+            attachment=attachment
         )
 
     def __init__(self):

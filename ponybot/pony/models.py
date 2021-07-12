@@ -70,6 +70,10 @@ class Pony(models.Model):
     conversation = models.CharField(
         _("Conversation peer id"), max_length=16, null=True, blank=True)
 
+    avatar_url = models.CharField(
+        _("Pony avatar url"), max_length=256, null=True, blank=True
+    )
+
     def set_sex(self, sex):
         self.sex = PonySex.from_user_choice(sex)
         self.save(update_fields=['sex'])
@@ -81,6 +85,10 @@ class Pony(models.Model):
     def set_conversation(self, peer_id):
         self.conversation = peer_id
         self.save(update_fields=['conversation'])
+
+    def set_avatar(self, avatar_url):
+        self.avatar_url = avatar_url
+        self.save(update_fields=['avatar_url'])
 
     def reset_stats(self):
         self.satiety = 0
