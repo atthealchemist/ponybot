@@ -6,6 +6,8 @@ from bot.utils import camel_to_snake
 from vk_api import VkUpload
 from vk_api.bot_longpoll import VkBotEventType
 
+from constance import config
+
 
 import requests
 
@@ -46,6 +48,26 @@ class SimpleAction(Action):
     def __init__(self, notifier):
         # We need to add long_poll as ctor arg cause we're auto loading all actions
         self.notifier = notifier
+
+
+class IsAdminMixin:
+
+    def is_admin(self, user_id, peer_id):
+        if str(user_id) not in config.PONY_BOT_ADMINS_LIST.split(','):
+            self.notifier.notify(peer_id, _(
+                "У вас нет доступа к этой команде!"))
+            return False
+        return True
+
+
+class AdminAction(SimpleAction, IsAdminMixin):
+    def call(self, event):
+        self.user_id = event.object.message.get('from_id')
+        self.peer_id = event.object.message.get('peer_id')
+        return self.is_admin(self.user_id, self.peer_id)
+
+    def __init__(self, notifier):
+        super().__init__(notifier)
 
 
 class DialogAction(SimpleAction):
