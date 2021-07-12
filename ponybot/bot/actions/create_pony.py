@@ -3,6 +3,8 @@ from django.utils.translation import gettext as _
 from .base import DialogAction, UploadPhotoAction
 from pony.models import Pony
 
+from constance import config
+
 
 class ActionCreatePony(DialogAction, UploadPhotoAction):
 
@@ -40,7 +42,9 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         pony_info['avatar_url'] = self.ask_photo(
             user_id,
             question=_(
-                "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):")
+                "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):"),
+            group_id=event.group_id,
+            album_id=config.PONY_BOT_ALBUM_ID
         )
 
         new_pony = Pony.objects.create(**pony_info)
