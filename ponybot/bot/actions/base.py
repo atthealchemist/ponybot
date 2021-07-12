@@ -116,12 +116,10 @@ class UploadPhotoAction(SimpleAction):
     def attach(self, photo_path, peer_id=-1):
         upload = VkUpload(vk=self.notifier.session)
 
-        photo = upload.photo_messages(  # Подставьте свои данные
+        photo = upload.photo_messages(
             photo_path,
             peer_id=peer_id
         )
-
-        print('photo', photo)
 
         vk_photo_url = 'photo{}_{}'.format(
             photo[0]['owner_id'], photo[0]['id']
