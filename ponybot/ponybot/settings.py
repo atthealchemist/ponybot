@@ -28,6 +28,8 @@ class BaseConfiguration(Configuration):
         }
     }
 
+    AUTH_USER_MODEL = "bot.PonybotUser"
+
     INSTALLED_APPS = [
         'django.contrib.admin',
         'django.contrib.auth',

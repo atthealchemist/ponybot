@@ -1,4 +1,7 @@
 from django.utils.translation import gettext as _
+from django.utils.crypto import get_random_string
+
+from django.contrib.auth import get_user_model
 
 from .base import DialogAction, UploadPhotoAction
 from pony.models import Pony
@@ -22,7 +25,17 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
 
-        if Pony.objects.filter(owner=user_id, conversation=peer_id, is_alive=True).exists():
+        user_model = get_user_model()
+
+        try:
+            user = user_model.objects.get(username=user_id)
+        except user_model.DoesNotExist:
+            user = user_model.objects.create(
+                username=user_id,
+                password=get_random_string(32)
+            )
+
+        if Pony.objects.filter(owner=user.username, conversation=peer_id, is_alive=True).exists():
             self.notifier.notify(peer_id, _(
                 "Вы не можете иметь более одной пони в беседе!"))
             return
