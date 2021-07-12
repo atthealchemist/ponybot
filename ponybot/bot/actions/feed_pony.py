@@ -29,14 +29,14 @@ class ActionFeedPony(SimpleAction):
             is_alive=True
         )
         if not user_ponies.exists():
-            self.notifier.notify(peer_id, _(
+            self.warn(peer_id, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
             ))
             return
         user_pony = user_ponies.first()
         try:
             user_pony.feed()
-            self.notifier.notify(peer_id, _(
+            self.say(peer_id, _(
                 f"Ваша пони ({user_pony.name}) покушала и теперь её сытость равна {user_pony.satiety}"))
         except PonyOverfeedException as ex:
-            self.notifier.notify(peer_id, _(str(ex)))
+            self.warn(peer_id, _(str(ex)))

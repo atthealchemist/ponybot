@@ -36,7 +36,7 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
             )
 
         if Pony.objects.filter(owner=user.username, conversation=peer_id, is_alive=True).exists():
-            self.notifier.notify(peer_id, _(
+            self.warn(peer_id, _(
                 "Вы не можете иметь более одной пони в беседе!"))
             return
 
@@ -67,7 +67,7 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         if 'avatar_url' in pony_info:
             new_pony.set_avatar(pony_info.get('avatar_url'))
 
-        self.notifier.notify(
+        self.say(
             peer_id,
             _(f"Ваша пони:  {new_pony}"),
             attachment=new_pony.avatar_url if new_pony.avatar_url else ""

@@ -24,7 +24,7 @@ class ActionMyPonyProfile(SimpleAction):
 
         user_ponies = Pony.objects.filter(owner=user_id, is_alive=True)
         if not user_ponies.exists():
-            self.notifier.notify(peer_id, _(
+            self.warn(peer_id, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
             ))
             return
@@ -32,10 +32,10 @@ class ActionMyPonyProfile(SimpleAction):
             user_id = event.object.message.get('from_id')
 
         user_id = user_id if user_ponies.count() > 1 else peer_id
-        self.notifier.notify(user_id, _(f"Ваши пони:\n"))
+        self.say(user_id, _(f"Ваши пони:\n"))
 
         for idx, pony in enumerate(user_ponies):
-            self.notifier.notify(
+            self.say(
                 user_id,
                 message=f"{idx + 1}. {str(pony)}",
                 attachment=pony.avatar_url if pony.avatar_url else ""
