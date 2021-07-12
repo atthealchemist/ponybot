@@ -42,20 +42,19 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         pony_info['avatar_url'] = self.ask_photo(
             user_id,
             question=_(
-                "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):"),
-            group_id=event.group_id,
-            album_id=config.PONY_BOT_ALBUM_ID
+                "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):")
         )
 
         new_pony = Pony.objects.create(**pony_info)
         new_pony.set_owner(user_id)
         new_pony.set_conversation(peer_id)
         new_pony.set_sex(pony_info.get('sex'))
-        new_pony.set_avatar_url(pony_info.get('avatar_url'))
+        new_pony.set_avatar(pony_info.get('avatar_url'))
 
         self.notifier.notify(
             peer_id,
-            _(f"Ваша пони:  {new_pony}")
+            _(f"Ваша пони:  {new_pony}"),
+            attachment=new_pony.avatar_url
         )
 
     def __str__(self):
