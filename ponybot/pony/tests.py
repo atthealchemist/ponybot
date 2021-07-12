@@ -1,4 +1,4 @@
-from pony.exceptions import PonyDeadException
+from pony.exceptions import PonyDeadException, PonyFeedingTimeoutException, PonyOverfeedException, PonyTiredException
 from django.db.utils import DatabaseError
 import pytest
 
@@ -47,12 +47,13 @@ def test_pony_feeding():
         satiety=12
     )
     satiety_before = my_pony.satiety
-    my_pony.feed()
-    assert my_pony.satiety > satiety_before
+    with pytest.raises(PonyFeedingTimeoutException):
+        my_pony.feed()
 
     aj_pony = Pony.objects.create(name="Applejack", satiety=14)
     satiety_before = aj_pony.satiety
-    aj_pony.feed()
+    with pytest.raises(PonyOverfeedException):
+        aj_pony.feed()
     assert aj_pony.satiety == satiety_before
 
 
@@ -62,7 +63,8 @@ def test_pony_last_feeded():
         name="Rainbow Dash"
     )
 
-    my_pony.feed()
+    with pytest.raises(PonyFeedingTimeoutException):
+        my_pony.feed()
 
     my_pony_feeding_hm = (
         my_pony.last_feeding.hour, my_pony.last_feeding.minute
@@ -80,9 +82,10 @@ def test_pony_learned():
         name="Rainbow Dash"
     )
 
-    points = my_pony.learn()
+    with pytest.raises(PonyTiredException):
+        points = my_pony.learn()
 
-    assert my_pony.experience == my_pony.experience + points
+        assert my_pony.experience == my_pony.experience + points
 
 
 @pytest.mark.django_db
@@ -91,7 +94,8 @@ def test_pony_last_learned():
         name="Rainbow Dash"
     )
 
-    my_pony.learn()
+    with pytest.raises(PonyTiredException):
+        my_pony.learn()
 
     my_pony_learning_hm = (
         my_pony.last_learning.hour, my_pony.last_learning.minute
@@ -118,13 +122,16 @@ def test_pony_lifecycle_is_pony_alive():
 
 
 @pytest.mark.django_db
-def test_pony_lifecycle_dead_pony_should_not_eat():
+def test_pony_lifecycle_dead_pony_should_not_do_any_actions():
     my_pony = Pony.objects.create(name="Flutter Bat", is_alive=False)
 
     my_pony.die()
 
     with pytest.raises(PonyDeadException):
         my_pony.feed()
+
+    with pytest.raises(PonyDeadException):
+        my_pony.learn()
 
     assert my_pony.satiety == 0
     assert my_pony.experience == 0
