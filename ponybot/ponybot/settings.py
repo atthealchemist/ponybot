@@ -52,7 +52,7 @@ class BaseConfiguration(Configuration):
         'PONY_HUNGER_MINS': (30, 'Pony hunger period (in mins)', int),
         'PONY_LEARNING_TIMEOUT_MINS': (5, 'Pony learning timeout (in mins)', int),
         'PONY_FEEDING_TIMEOUT_MINS': (7, 'Pony feeding timeout (in mins)', int),
-        'PONY_BOT_ALBUM_ID': (-1, "Ponybot album id", int)
+        'PONY_BOT_ADMINS_LIST': ("", "Ponybot admins user_id list, separated by comma", str)
     }
 
     LOGGING = {
