@@ -45,6 +45,12 @@ class Action(AbstractBase):
 
 class SimpleAction(Action):
 
+    def warn(self, user_id, message, attachment=None):
+        self.say(user_id, message=f"⚠ {message} ⚠", attachment=attachment)
+
+    def say(self, user_id, message, attachment=None):
+        self.notifier.notify(user_id, message, attachment)
+
     def __init__(self, notifier):
         # We need to add long_poll as ctor arg cause we're auto loading all actions
         self.notifier = notifier
@@ -54,7 +60,7 @@ class IsAdminMixin:
 
     def is_admin(self, user_id, peer_id):
         if str(user_id) not in config.PONY_BOT_ADMINS_LIST.split(','):
-            self.notifier.notify(peer_id, _(
+            self.say(peer_id, _(
                 "У вас нет доступа к этой команде!"))
             return False
         return True
@@ -73,14 +79,14 @@ class AdminAction(SimpleAction, IsAdminMixin):
 class DialogAction(SimpleAction):
 
     def ask(self, user_id, question, answer_message=None):
-        self.notifier.notify(user_id, question)
+        self.say(user_id, question)
         for event in self.notifier.long_poll.listen():
             if event.type == VkBotEventType.MESSAGE_NEW:
                 if 'action' in event.object.message:
                     break
                 message = event.object.message.get('text')
                 if answer_message:
-                    self.notifier.notify(
+                    self.say(
                         user_id,
                         answer_message.format(message)
                     )
@@ -96,7 +102,7 @@ class DialogAction(SimpleAction):
             )
             if answer in choices:
                 break
-            self.notifier.notify(user_id, _(
+            self.say(user_id, _(
                 "Такого варианта нет среди предложенных!"))
         return answer
 

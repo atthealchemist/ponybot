@@ -16,7 +16,7 @@ class ActionGetId(AdminAction):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
         if self.is_admin(user_id, peer_id):
-            self.notifier.notify(peer_id,
+            self.say(peer_id,
                                  _(f"""
                             Ваш ID (user_id/from_id): {user_id}
                             ID группы (group_id): {event.group_id}
