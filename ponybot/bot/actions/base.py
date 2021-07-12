@@ -3,6 +3,7 @@ from abc import ABC as AbstractBase, abstractmethod
 from django.utils.translation import gettext as _
 from bot.utils import camel_to_snake
 
+from vk_api import VkUpload
 from vk_api.bot_longpoll import VkBotEventType
 
 
@@ -73,6 +74,44 @@ class DialogAction(SimpleAction):
             self.notifier.notify(user_id, _(
                 "Такого варианта нет среди предложенных!"))
         return answer
+
+    def __init__(self, notifier):
+        super().__init__(notifier=notifier)
+
+
+class UploadPhotoAction(SimpleAction):
+
+    def ask_photo(self, user_id, question, album_id=-1, group_id=-1):
+        self.notifier.notify(user_id, question)
+        for event in self.notifier.long_poll.listen():
+            if event.type == VkBotEventType.MESSAGE_NEW:
+                if 'action' in event.object.message:
+                    break
+                print(event)
+                # TODO: fill attachment path from event object
+                attachment_path = ""
+                photo_url = self.upload(
+                    attachment_path,
+                    album_id=album_id,
+                    group_id=group_id
+                )
+
+                return photo_url
+
+    def attach(self, photo_path, album_id=-1, group_id=-1):
+        upload = VkUpload(vk=self.notifier.session)
+
+        photo = upload.photo(  # Подставьте свои данные
+            photo_path,
+            album_id=album_id,
+            group_id=group_id
+        )
+
+        vk_photo_url = 'https://vk.com/photo{}_{}'.format(
+            photo[0]['owner_id'], photo[0]['id']
+        )
+
+        return vk_photo_url
 
     def __init__(self, notifier):
         super().__init__(notifier=notifier)
