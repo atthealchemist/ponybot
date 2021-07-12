@@ -1,4 +1,4 @@
-from pony.exceptions import PonyFeedingTimeoutException, PonyOverfeedException, PonyTiredException
+from pony.exceptions import PonyDeadException, PonyFeedingTimeoutException, PonyOverfeedException, PonyTiredException
 import uuid
 from string import Template
 from datetime import timedelta
@@ -93,6 +93,9 @@ class Pony(models.Model):
         self.save(update_fields=['is_alive'])
 
     def feed(self):
+        if not self.is_alive:
+            raise PonyDeadException(pony=self)
+
         feeding_timeout = config.PONY_FEEDING_TIMEOUT_MINS
         if self.satiety >= self.experience * 14:
             raise PonyOverfeedException
@@ -103,6 +106,9 @@ class Pony(models.Model):
         self.save(update_fields=['satiety', 'last_feeding'])
 
     def learn(self):
+        if not self.is_alive:
+            raise PonyDeadException(pony=self)
+
         learning_timeout = config.PONY_LEARNING_TIMEOUT_MINS
         if self.last_learning < self.last_learning + timedelta(seconds=learning_timeout):
             raise PonyTiredException
