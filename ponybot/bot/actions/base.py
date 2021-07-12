@@ -94,13 +94,16 @@ class UploadPhotoAction(SimpleAction):
             ])
         return res
 
-    def ask_photo(self, user_id, question):
+    def ask_photo(self, user_id, question, declines=None):
         self.notifier.notify(user_id, question)
         for event in self.notifier.long_poll.listen():
             if event.type == VkBotEventType.PHOTO_NEW:
                 print('photo_event', event)
             if event.type == VkBotEventType.MESSAGE_NEW:
                 if 'action' in event.object.message:
+                    break
+
+                if any([d for d in declines if d.lower() in event.object.message.get('text').lower()]):
                     break
 
                 # We're getting attachment url from event
