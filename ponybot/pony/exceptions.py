@@ -7,7 +7,7 @@ class PonyException(Exception):
     def __init__(self, pony=None):
         self.message = None
         self.pony = pony
-        self.pony_name = pony.name or ""
+        self.pony_name = pony.name if pony else ""
 
 
 class PonyDeadException(PonyException):
