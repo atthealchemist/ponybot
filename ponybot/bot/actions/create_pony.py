@@ -1,10 +1,10 @@
 from django.utils.translation import gettext as _
 
-from .base import DialogAction
-from pony.models import Pony, PonySex
+from .base import DialogAction, UploadPhotoAction
+from pony.models import Pony
 
 
-class ActionCreatePony(DialogAction):
+class ActionCreatePony(DialogAction, UploadPhotoAction):
 
     def __init__(self, notifier=None):
         self.notifier = notifier
@@ -37,10 +37,17 @@ class ActionCreatePony(DialogAction):
             choices=['пегас', 'единорог', 'земнопони']
         )
 
+        pony_info['avatar_url'] = self.ask_photo(
+            user_id,
+            question=_(
+                "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):")
+        )
+
         new_pony = Pony.objects.create(**pony_info)
         new_pony.set_owner(user_id)
         new_pony.set_conversation(peer_id)
         new_pony.set_sex(pony_info.get('sex'))
+        new_pony.set_avatar_url(pony_info.get('avatar_url'))
 
         self.notifier.notify(
             peer_id,
