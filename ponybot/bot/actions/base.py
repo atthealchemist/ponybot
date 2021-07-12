@@ -1,7 +1,8 @@
 from abc import ABC as AbstractBase, abstractmethod
+from io import BytesIO
 
 from django.utils.translation import gettext as _
-from bot.utils import camel_to_snake
+from bot.utils import camel_to_snake, crop_avatar_background
 
 from vk_api import VkUpload
 from vk_api.bot_longpoll import VkBotEventType
@@ -132,8 +133,11 @@ class UploadPhotoAction(SimpleAction):
                 for attachment in self.__get_attachments(event):
                     with requests.Session() as session:
                         image = session.get(attachment.get('url'), stream=True)
+                        crop = crop_avatar_background(
+                            avatar=BytesIO(image.content)
+                        )
                         photo_url = self.attach(
-                            image.raw,
+                            crop,
                             peer_id=user_id
                         )
                         return photo_url
