@@ -28,13 +28,13 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
             return
 
         pony_info['name'] = self.ask(
-            peer_id,
+            user_id,
             question=_("Как вы хотите назвать вашу пони?"),
             answer_message=_("Вашу пони теперь зовут: {0}")
         )
 
         pony_info['sex'] = self.choice(
-            peer_id,
+            user_id,
             question=_(f"Выберите расу вашей пони: "),
             choices=['пегас', 'единорог', 'земнопони']
         )
