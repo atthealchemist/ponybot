@@ -47,8 +47,9 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         )
 
         new_pony = Pony.objects.create(**pony_info)
-        new_pony.set_owner(user_id)
-        new_pony.set_conversation(peer_id)
+        new_pony.set_owner(user_id, title=self.bot.get_user_name(user_id))
+        new_pony.set_conversation(
+            peer_id, title=self.bot.get_conversation_title(peer_id))
         new_pony.set_race(pony_info.get('race'))
 
         if 'avatar_url' in pony_info:

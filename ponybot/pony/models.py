@@ -2,7 +2,7 @@ from bot.utils import humanize_time, timedelta_to_time
 from pony.exceptions import PonyDeadException, PonyFeedingTimeoutException, PonyOverfeedException, PonyTiredException
 import uuid
 from string import Template
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.db import models
 from django.db.models.enums import TextChoices
@@ -70,8 +70,15 @@ class Pony(models.Model):
         null=True,
         blank=True
     )
+
+    owner_title = models.CharField(
+        _("Owner title"), max_length=128, null=True, blank=True)
+
     conversation = models.CharField(
         _("Conversation"), max_length=16, null=True, blank=True)
+
+    conversation_title = models.CharField(
+        _("Conversation title"), max_length=128, null=True, blank=True)
 
     avatar_url = models.CharField(
         _("Avatar"), max_length=256, null=True, blank=True
@@ -81,13 +88,15 @@ class Pony(models.Model):
         self.race = Race.from_user_choice(race)
         self.save(update_fields=['race'])
 
-    def set_owner(self, owner_id):
+    def set_owner(self, owner_id, title=''):
         self.owner = str(owner_id)
-        self.save(update_fields=['owner'])
+        self.owner_title = title
+        self.save(update_fields=['owner', 'owner_title'])
 
-    def set_conversation(self, peer_id):
+    def set_conversation(self, peer_id, title=''):
         self.conversation = peer_id
-        self.save(update_fields=['conversation'])
+        self.conversation_title = title
+        self.save(update_fields=['conversation', 'conversation_title'])
 
     def set_avatar(self, avatar_url):
         self.avatar_url = avatar_url
@@ -165,8 +174,8 @@ class Pony(models.Model):
             📖\tLevel: $experience
             🍎\tSatiety: $satiety
             ---
-            👥\tOwner: $owner
-            💬\tConversation: $conversation
+            👥\tOwner: $owner_title [$owner]
+            💬\tConversation: $conversation_title [$conversation]
             ---
             📚\tLast learning: $last_learning
             🍼\tLast feeding: $last_feeding
@@ -179,7 +188,9 @@ class Pony(models.Model):
             sex=self.race,
             experience=self.experience,
             satiety=self.satiety,
+            owner_title=self.owner_title,
             owner=self.owner,
+            conversation_title=self.conversation_title,
             conversation=self.conversation,
             last_learning=humanize_time(self.last_learning),
             last_feeding=humanize_time(self.last_feeding)
