@@ -3,10 +3,6 @@ from abc import ABC as AbstractBase, abstractmethod
 from django.utils.translation import gettext as _
 from bot.utils import camel_to_snake
 
-from vk_api import VkUpload
-from vk_api.bot_longpoll import VkBotEventType
-
-
 
 import requests
 
@@ -28,11 +24,10 @@ class Action(AbstractBase):
     """
 
     def __init__(self, aliases=None):
-        self.action_id = camel_to_snake(self.__class__.__name__)
         self.aliases = aliases
 
     @abstractmethod
-    def call(self, event):
+    def call(self, user_id, peer_id, message, user):
         pass
 
     def __repr__(self):
@@ -48,54 +43,46 @@ class SimpleAction(Action):
     def action_id(self):
         return camel_to_snake(self.__class__.__name__)
 
-    def warn(self, user_id, message, attachment=None):
-        self.say(user_id, message=f"⚠ {message} ⚠", attachment=attachment)
-
-    def say(self, user_id, message, attachment=None, prefix='', suffix=''):
-        message = ' '.join([prefix, message, suffix])
-        self.notifier.notify(user_id, message, attachment)
-
-    def congratulate(self, user_id, message, attachment=None):
-        self.say(user_id, message=f"✅ {message} ✅", attachment=attachment)
-
-
-    def __init__(self, notifier):
+    def __init__(self, bot):
         # We need to add long_poll as ctor arg cause we're auto loading all actions
-        self.notifier = notifier
+        self.bot = bot
 
 
 class DialogAction(SimpleAction):
 
-    def ask(self, user_id, question, answer_message=None):
-        self.say(user_id, question)
-        for event in self.notifier.long_poll.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                if 'action' in event.object.message:
-                    break
-                message = event.object.message.get('text')
-                if answer_message:
-                    self.say(
-                        user_id,
-                        answer_message.format(message)
-                    )
-                return message
+    def ask(self, peer_id, user, question, answer_message=None):
+        self.bot.say(peer_id, question)
+        for user_id, _, message, event in self.bot.listen_new_messages():
+            if any(['action' in event.object.message]):
+                self.bot.logger.debug("user not equal, exiting...")
+                break
 
-    def choice(self, user_id, question, choices, answer_message=None):
+            if answer_message:
+                self.bot.say(
+                    peer_id,
+                    answer_message.format(message)
+                )
+            return message
+
+    def choice(self, peer_id, user, question, choices, answer_message=None):
         answer = ""
         while answer not in choices:
             answer = self.ask(
-                user_id=user_id,
+                peer_id=peer_id,
+                user=user,
                 question=question + ', '.join(choices),
                 answer_message=answer_message
             )
+            self.bot.logger.debug(f"Answer: {answer}")
+            answer = answer.lower()
             if answer in choices:
                 break
-            self.say(user_id, _(
+            self.bot.warn(peer_id, _(
                 "Такого варианта нет среди предложенных!"))
         return answer
 
-    def __init__(self, notifier):
-        super().__init__(notifier=notifier)
+    def __init__(self, bot):
+        super().__init__(bot=bot)
 
 
 class UploadPhotoAction(SimpleAction):
@@ -110,41 +97,27 @@ class UploadPhotoAction(SimpleAction):
             ])
         return res
 
-    def ask_photo(self, user_id, question, declines=None):
-        self.notifier.notify(user_id, question)
-        for event in self.notifier.long_poll.listen():
-            if event.type == VkBotEventType.PHOTO_NEW:
-                print('photo_event', event)
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                if 'action' in event.object.message:
-                    break
+    def ask_photo(self, peer_id, user, question, declines=None):
+        self.bot.say(peer_id, question)
+        for from_id, peer_id, _, event in self.bot.listen_new_messages():
+            if from_id != user.username:
+                break
 
-                if any([d for d in declines if d.lower() in event.object.message.get('text').lower()]):
-                    break
+            if any([
+                d for d in declines
+                if d.lower() in event.object.message.get('text').lower()
+            ]):
+                break
 
-                # We're getting attachment url from event
-                for attachment in self.__get_attachments(event):
-                    with requests.Session() as session:
-                        image = session.get(attachment.get('url'), stream=True)
-                        photo_url = self.attach(
-                            image.raw,
-                            peer_id=user_id
-                        )
-                        return photo_url
+            # We're getting attachment url from event
+            for attachment in self.__get_attachments(event):
+                with requests.Session() as session:
+                    image = session.get(attachment.get('url'), stream=True)
+                    photo_url = self.bot.upload_photo(
+                        image.raw,
+                        peer_id=peer_id
+                    )
+                    return photo_url
 
-    def attach(self, photo_path, peer_id=-1):
-        upload = VkUpload(vk=self.notifier.session)
-
-        photo = upload.photo_messages(
-            photo_path,
-            peer_id=peer_id
-        )
-
-        vk_photo_url = 'photo{}_{}'.format(
-            photo[0]['owner_id'], photo[0]['id']
-        )
-
-        return vk_photo_url
-
-    def __init__(self, notifier):
-        super().__init__(notifier=notifier)
+    def __init__(self, bot):
+        super().__init__(bot=bot)

@@ -8,21 +8,17 @@ from .base import SimpleAction
 
 
 class ActionFeedPony(SimpleAction):
+    aliases = (
+        'кормить пони',
+        'покормить пони',
+        'покормить',
+        'покушать'
+    )
 
-    def __init__(self, notifier=None):
-        super().__init__(notifier)
+    def __init__(self, bot):
+        super().__init__(bot=bot)
 
-        self.aliases = [
-            'кормить пони',
-            'покормить пони',
-            'покормить',
-            'покушать'
-        ]
-
-    def call(self, event):
-        user_id = event.object.message.get('from_id')
-        peer_id = event.object.message.get('peer_id')
-
+    def call(self, user_id, peer_id, message, event):
         user_ponies = Pony.objects.filter(
             owner=user_id,
             conversation=peer_id,
@@ -36,11 +32,11 @@ class ActionFeedPony(SimpleAction):
         user_pony = user_ponies.first()
         try:
             user_pony.feed()
-            self.say(
+            self.bot.say(
                 peer_id,
                 message=_(
                     f"Ваша пони ({user_pony.name.capitalize()}) покушала и теперь её сытость равна {user_pony.satiety}"),
                 prefix='🍼'
             )
         except PonyException as ex:
-            self.warn(peer_id, ex)
+            self.bot.warn(peer_id, ex)

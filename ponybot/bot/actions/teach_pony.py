@@ -8,20 +8,16 @@ from .base import SimpleAction
 
 
 class ActionTeachPony(SimpleAction):
+    aliases = (
+        'учить пони',
+        'отправиться в библиотеку',
+        'пойти в библиотеку'
+    )
 
-    def __init__(self, notifier=None):
-        super().__init__(notifier)
+    def __init__(self, bot):
+        super().__init__(bot)
 
-        self.aliases = [
-            'учить пони',
-            'отправиться в библиотеку',
-            'пойти в библиотеку'
-        ]
-
-    def call(self, event):
-        user_id = event.object.message.get('from_id')
-        peer_id = event.object.message.get('peer_id')
-
+    def call(self, user_id, peer_id, message, event):
         user_ponies = Pony.objects.filter(
             owner=user_id, conversation=peer_id, is_alive=True)
         if not user_ponies.exists():
@@ -32,11 +28,11 @@ class ActionTeachPony(SimpleAction):
         user_pony = user_ponies.first()
         try:
             user_pony.learn()
-            self.say(
+            self.bot.say(
                 peer_id,
                 message=_(
                     f"Ваша пони ({user_pony.name.capitalize()}) учится! Теперь её опыт равен {user_pony.experience}"),
                 prefix='📚'
             )
         except PonyException as ex:
-            self.warn(peer_id, ex)
+            self.bot.warn(peer_id, ex)
