@@ -56,11 +56,11 @@ class Pony(models.Model):
     )
     last_feeding = models.DateTimeField(
         _("Last feeding"),
-        null=True, auto_now=True
+        null=True, auto_now=False
     )
     last_learning = models.DateTimeField(
         _("Last learning"),
-        null=True, auto_now=True
+        null=True, auto_now=False
     )
     is_alive = models.BooleanField(_("Is alive"), default=True)
 
@@ -123,16 +123,18 @@ class Pony(models.Model):
         # Пони покормили в 10:30 (last_feeding)
         # Сейчас 10:34 (now)
         # Её следующая покормка (next_feeding) - 10:30 (last_feeding) + 8 минут (timeout) = 10:38
-        next_feeding = self.last_feeding + timedelta(minutes=feeding_timeout)
-        # Осталось времени до покормки - next_feeding - now
-        time_to_feed = next_feeding - timezone.now()
-        # Если осталось время для покормки - выбрасываем exception
-        try:
-            if timedelta_to_time(time_to_feed) < next_feeding.time():
-                raise PonyFeedingTimeoutException(self)
-        except OverflowError:
-            # Для случаев, если пони кормили пару дней назад
-            pass
+        if self.last_feeding:
+            next_feeding = self.last_feeding + \
+                timedelta(minutes=feeding_timeout)
+            # Осталось времени до покормки - next_feeding - now
+            time_to_feed = next_feeding - timezone.now()
+            # Если осталось время для покормки - выбрасываем exception
+            try:
+                if timedelta_to_time(time_to_feed) < next_feeding.time():
+                    raise PonyFeedingTimeoutException(self)
+            except OverflowError:
+                # Для случаев, если пони кормили пару дней назад
+                pass
 
         # Иначе кормим пони
         self.satiety += 1
@@ -146,14 +148,15 @@ class Pony(models.Model):
 
         learning_timeout = config.PONY_LEARNING_TIMEOUT_MINS
 
-        next_learning = self.last_learning + \
-            timedelta(minutes=learning_timeout)
-        time_to_learn = next_learning - timezone.now()
-        try:
-            if timedelta_to_time(time_to_learn) < next_learning.time():
-                raise PonyTiredException(self)
-        except OverflowError:
-            pass
+        if self.last_learning:
+            next_learning = self.last_learning + \
+                timedelta(minutes=learning_timeout)
+            time_to_learn = next_learning - timezone.now()
+            try:
+                if timedelta_to_time(time_to_learn) < next_learning.time():
+                    raise PonyTiredException(self)
+            except OverflowError:
+                pass
 
         points = self.satiety + (abs(10 - self.satiety) / 2) - 5
 
