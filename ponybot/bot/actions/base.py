@@ -74,6 +74,7 @@ class DialogAction(SimpleAction):
                 answer_message=answer_message
             )
             self.bot.logger.debug(f"Answer: {answer}")
+            answer = answer.lower()
             if answer in choices:
                 break
             self.bot.warn(peer_id, _(
