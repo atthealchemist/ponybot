@@ -24,17 +24,18 @@ class BotVkAPI(BotAPI):
     def congratulate(self, user_id, message, attachment=None):
         self.say(user_id, message=f"✅ {message} ✅", attachment=attachment)
 
-    def get_conversation(self, peer_id):
-        return self.api.messages.get_convesation_by_id(
+    def get_conversation_title(self, peer_id):
+        return self.api.messages.get_conversations_by_id(
             peer_ids=[peer_id],
             group_id=settings.VK_GROUP_ID
-        )
+        ).get('items')[0].get('chat_settings').get('title')
 
-    def get_user_info(self, user_id):
-        return self.api.users.get(
+    def get_user_name(self, user_id):
+        user_info = self.api.users.get(
             user_ids=[user_id],
             fields=[]
-        )
+        )[0]
+        return f"{user_info.get('first_name')} {user_info.get('last_name')}"
 
     def send_message(self, receiver, message, attachment=None):
         self.api.messages.send(
