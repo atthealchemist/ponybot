@@ -185,6 +185,12 @@ class Pony(models.Model):
             """
         )
 
+        last_learning = humanize_time(
+            self.last_learning) if self.last_learning else "ещё ни разу не учили"
+        last_feeding = humanize_time(
+            self.last_feeding) if self.last_feeding else "ещё ни разу не кормили"
+
+
         return _(pony_stats_template.safe_substitute(
             name=self.name.capitalize(),
             dead=_("(мертва)") if not self.is_alive else "",
@@ -195,8 +201,8 @@ class Pony(models.Model):
             owner=self.owner,
             conversation_title=self.conversation_title,
             conversation=self.conversation,
-            last_learning=humanize_time(self.last_learning),
-            last_feeding=humanize_time(self.last_feeding)
+            last_learning=last_learning,
+            last_feeding=last_feeding
         ))
 
     class Meta:
