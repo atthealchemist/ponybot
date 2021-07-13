@@ -8,7 +8,8 @@ from .models import PonybotAction, PonybotUser
 
 @admin.register(PonybotUser)
 class PonybotUserAdmin(ModelAdmin):
-    list_display = ('username', 'is_superuser', 'is_subscriber')
+    list_display = ('username', 'first_name', 'last_name',
+                    'is_superuser', 'is_subscriber')
     list_filter = ('is_superuser', 'is_subscriber')
 
 

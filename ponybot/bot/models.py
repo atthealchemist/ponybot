@@ -19,6 +19,11 @@ class PonybotUser(AbstractUser):
     def is_admin(self, user_id):
         return self.is_superuser() or str(user_id) in config.PONY_BOT_ADMINS_LIST.split(',')
 
+    def set_name(self, first_name="", last_name=""):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.save(update_fields=['first_name', 'last_name'])
+
 
 class PonybotAction(models.Model):
     name = models.CharField(_("Action Name"), max_length=64)
