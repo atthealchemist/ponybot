@@ -1,4 +1,3 @@
-from bot.exceptions import IsAdminOnlyCommand
 from bot.notifier import VkNotifier
 import logging
 import pkgutil
@@ -108,7 +107,8 @@ class PonybotService:
             called_user = get_user_model().objects.get(username=from_id)
             if any([a for a in related_action.aliases if message.lower() in a.lower()]):
                 if related_action.is_admin_only and not called_user.is_admin():
-                    self.notifier.notify(from_id, str(IsAdminOnlyCommand))
+                    self.notifier.notify(
+                        from_id, _("У вас недостаточно прав для доступа к этой команде!"))
                     return
                 action.call(event)
                 return
