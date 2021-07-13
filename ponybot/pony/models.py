@@ -16,7 +16,7 @@ from constance import config
 # Create your models here.
 
 
-class PonySex(TextChoices):
+class Race(TextChoices):
     EARTHPONY = _("Земнопони")
     PEGASUS = _("Пегас")
     UNICORN = _("Единорог")
@@ -40,8 +40,8 @@ class PonySex(TextChoices):
 class Pony(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_("Name"), max_length=64, blank=True)
-    sex = models.CharField(
-        _("Race"), max_length=12, choices=PonySex.choices, default=PonySex.EARTHPONY)
+    race = models.CharField(
+        _("Race"), max_length=12, choices=Race.choices, default=Race.EARTHPONY)
     experience = models.PositiveSmallIntegerField(
         _("Level"),
         default=1,
@@ -78,7 +78,7 @@ class Pony(models.Model):
     )
 
     def set_sex(self, sex):
-        self.sex = PonySex.from_user_choice(sex)
+        self.race = Race.from_user_choice(sex)
         self.save(update_fields=['sex'])
 
     def set_owner(self, owner_id):
@@ -176,7 +176,7 @@ class Pony(models.Model):
         return _(pony_stats_template.safe_substitute(
             name=self.name.capitalize(),
             dead=_("(мертва)") if not self.is_alive else "",
-            sex=self.sex,
+            sex=self.race,
             experience=self.experience,
             satiety=self.satiety,
             owner=self.owner,
