@@ -13,6 +13,16 @@ class PonyException(Exception):
         self.pony_name = pony.name if pony else ""
 
 
+class PonyNotExist(PonyException):
+    def __init__(self, pony=None):
+        super().__init__(pony=pony)
+
+    def __str__(self):
+        from bot.actions.create_pony import ActionCreatePony
+        return _(
+            f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
+        )
+
 class PonyDeadException(PonyException):
     def __init__(self, pony=None):
         super().__init__(pony=pony)
