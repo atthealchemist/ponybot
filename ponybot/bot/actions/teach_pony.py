@@ -1,5 +1,4 @@
 from pony.exceptions import PonyException, PonyNotExist
-from bot.actions.create_pony import ActionCreatePony
 from django.utils.translation import gettext as _
 
 from pony.models import Pony
