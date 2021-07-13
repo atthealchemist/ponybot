@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from .base import DialogAction, UploadPhotoAction
 from pony.models import Pony
 
-from constance import config
 
 
 class ActionCreatePony(DialogAction, UploadPhotoAction):
@@ -25,15 +24,7 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         user_id = event.object.message.get('from_id')
         peer_id = event.object.message.get('peer_id')
 
-        user_model = get_user_model()
-
-        try:
-            user = user_model.objects.get(username=user_id)
-        except user_model.DoesNotExist:
-            user = user_model.objects.create(
-                username=user_id,
-                password=get_random_string(32)
-            )
+        user = get_user_model().objects.get(username=user_id)
 
         if Pony.objects.filter(owner=user.username, conversation=peer_id, is_alive=True).exists():
             self.warn(peer_id, _(

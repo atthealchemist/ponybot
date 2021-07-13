@@ -1,3 +1,4 @@
+from django.utils.crypto import get_random_string
 from bot.notifier import VkNotifier
 import logging
 import pkgutil
@@ -10,7 +11,7 @@ from django.contrib.auth import get_user_model
 
 from vk_api.bot_longpoll import VkBotEventType
 
-from .models import PonybotAction
+from .models import PonybotAction, PonybotUser
 
 
 class PonybotService:
@@ -104,7 +105,13 @@ class PonybotService:
 
         for action in self.actions:
             related_action = PonybotAction.objects.get(name=action.action_id)
-            called_user = get_user_model().objects.get(username=from_id)
+            try:
+                called_user = get_user_model().objects.get(username=from_id)
+            except PonybotUser.DoesNotExist:
+                called_user = get_user_model().objects.create(
+                    username=from_id,
+                    password=get_random_string(32)
+                )
             if any([a for a in related_action.aliases if message.lower() in a.lower()]):
                 if related_action.is_admin_only and not called_user.is_admin():
                     self.notifier.notify(
