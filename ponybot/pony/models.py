@@ -1,7 +1,8 @@
+from bot.utils import humanize_time, timedelta_to_time
 from pony.exceptions import PonyDeadException, PonyFeedingTimeoutException, PonyOverfeedException, PonyTiredException
 import uuid
 from string import Template
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models.enums import TextChoices
@@ -38,11 +39,11 @@ class PonySex(TextChoices):
 
 class Pony(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(_("Pony name"), max_length=64, blank=True)
+    name = models.CharField(_("Name"), max_length=64, blank=True)
     sex = models.CharField(
-        _("Pony sex"), max_length=12, choices=PonySex.choices, default=PonySex.EARTHPONY)
+        _("Race"), max_length=12, choices=PonySex.choices, default=PonySex.EARTHPONY)
     experience = models.PositiveSmallIntegerField(
-        _("Pony experience"),
+        _("Level"),
         default=1,
         validators=[
             MinValueValidator(1),
@@ -50,28 +51,30 @@ class Pony(models.Model):
         ]
     )
     satiety = models.PositiveSmallIntegerField(
-        _("Pony satiety"),
+        _("Satiety"),
         default=10
     )
     last_feeding = models.DateTimeField(
+        _("Last feeding"),
         null=True, auto_now=True
     )
     last_learning = models.DateTimeField(
+        _("Last learning"),
         null=True, auto_now=True
     )
-    is_alive = models.BooleanField(_("Is pony alive"), default=True)
+    is_alive = models.BooleanField(_("Is alive"), default=True)
 
     owner = models.CharField(
-        _("Owner user id"),
+        _("Owner"),
         max_length=16,
         null=True,
         blank=True
     )
     conversation = models.CharField(
-        _("Conversation peer id"), max_length=16, null=True, blank=True)
+        _("Conversation"), max_length=16, null=True, blank=True)
 
     avatar_url = models.CharField(
-        _("Pony avatar url"), max_length=256, null=True, blank=True
+        _("Avatar"), max_length=256, null=True, blank=True
     )
 
     def set_sex(self, sex):
@@ -102,58 +105,84 @@ class Pony(models.Model):
 
     def feed(self):
         if not self.is_alive:
-            raise PonyDeadException(pony=self)
+            raise PonyDeadException(self)
 
         feeding_timeout = config.PONY_FEEDING_TIMEOUT_MINS
         if self.satiety >= self.experience * 14:
-            raise PonyOverfeedException
-        if self.last_feeding < self.last_feeding + timedelta(minutes=feeding_timeout):
-            raise PonyFeedingTimeoutException
-        self.last_feeding = timezone.now()
+            raise PonyOverfeedException(self)
+
+        # Пони покормили в 10:30 (last_feeding)
+        # Сейчас 10:34 (now)
+        # Её следующая покормка (next_feeding) - 10:30 (last_feeding) + 8 минут (timeout) = 10:38
+        next_feeding = self.last_feeding + timedelta(minutes=feeding_timeout)
+        # Осталось времени до покормки - next_feeding - now
+        time_to_feed = next_feeding - timezone.now()
+        # Если осталось время для покормки - выбрасываем exception
+        try:
+            if timedelta_to_time(time_to_feed) < next_feeding.time():
+                raise PonyFeedingTimeoutException(self)
+        except OverflowError:
+            # Для случаев, если пони кормили пару дней назад
+            pass
+
+        # Иначе кормим пони
         self.satiety += 1
+        # Как только мы покормили пони, устанавливаем время последней покормки - сейчас
+        self.last_feeding = timezone.now()
         self.save(update_fields=['satiety', 'last_feeding'])
 
     def learn(self):
         if not self.is_alive:
-            raise PonyDeadException(pony=self)
+            raise PonyDeadException(self)
 
         learning_timeout = config.PONY_LEARNING_TIMEOUT_MINS
-        if self.last_learning < self.last_learning + timedelta(seconds=learning_timeout):
-            raise PonyTiredException
+
+        next_learning = self.last_learning + \
+            timedelta(minutes=learning_timeout)
+        time_to_learn = next_learning - timezone.now()
+        try:
+            if timedelta_to_time(time_to_learn) < next_learning.time():
+                raise PonyTiredException(self)
+        except OverflowError:
+            pass
+
         points = self.satiety + (abs(10 - self.satiety) / 2) - 5
 
-        self.experience += points
+        self.experience += int(points)
         self.last_learning = timezone.now()
         self.save(update_fields=['experience', 'last_learning'])
 
         return points
 
     def __str__(self):
+        fields = [
+            f"{f.verbose_name}: {f.value_from_object(self)}" for f in self._meta.fields]
+        print('fields', fields)
         pony_stats_template = Template(
             """
-            Name: $name $dead
-            Sex: $sex
-            Experience: $experience
-            Satiety: $satiety
+            🐎\tName: $name $dead
+            👬\tRace: $sex
+            📖\tLevel: $experience
+            🍎\tSatiety: $satiety
             ---
-            Owner: $owner
-            Conversation: $conversation
+            👥\tOwner: $owner
+            💬\tConversation: $conversation
             ---
-            Last learning: $last_learning
-            Last feeding: $last_feeding
+            📚\tLast learning: $last_learning
+            🍼\tLast feeding: $last_feeding
             """
         )
 
         return _(pony_stats_template.safe_substitute(
-            name=self.name,
+            name=self.name.capitalize(),
             dead=_("(мертва)") if not self.is_alive else "",
             sex=self.sex,
             experience=self.experience,
             satiety=self.satiety,
             owner=self.owner,
             conversation=self.conversation,
-            last_learning=self.last_learning,
-            last_feeding=self.last_feeding
+            last_learning=humanize_time(self.last_learning),
+            last_feeding=humanize_time(self.last_feeding)
         ))
 
     class Meta:

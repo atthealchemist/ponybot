@@ -1,4 +1,4 @@
-from pony.exceptions import PonyOverfeedException
+from pony.exceptions import PonyException
 from bot.actions.create_pony import ActionCreatePony
 from django.utils.translation import gettext as _
 
@@ -25,7 +25,7 @@ class ActionFeedPony(SimpleAction):
 
         user_ponies = Pony.objects.filter(
             owner=user_id,
-            # conversation=peer_id,
+            conversation=peer_id,
             is_alive=True
         )
         if not user_ponies.exists():
@@ -36,7 +36,11 @@ class ActionFeedPony(SimpleAction):
         user_pony = user_ponies.first()
         try:
             user_pony.feed()
-            self.say(peer_id, _(
-                f"Ваша пони ({user_pony.name}) покушала и теперь её сытость равна {user_pony.satiety}"))
-        except PonyOverfeedException as ex:
-            self.warn(peer_id, _(str(ex)))
+            self.say(
+                peer_id,
+                message=_(
+                    f"Ваша пони ({user_pony.name.capitalize()}) покушала и теперь её сытость равна {user_pony.satiety}"),
+                prefix='🍼'
+            )
+        except PonyException as ex:
+            self.warn(peer_id, ex)

@@ -51,8 +51,13 @@ class SimpleAction(Action):
     def warn(self, user_id, message, attachment=None):
         self.say(user_id, message=f"⚠ {message} ⚠", attachment=attachment)
 
-    def say(self, user_id, message, attachment=None):
+    def say(self, user_id, message, attachment=None, prefix='', suffix=''):
+        message = ' '.join([prefix, message, suffix])
         self.notifier.notify(user_id, message, attachment)
+
+    def congratulate(self, user_id, message, attachment=None):
+        self.say(user_id, message=f"✅ {message} ✅", attachment=attachment)
+
 
     def __init__(self, notifier):
         # We need to add long_poll as ctor arg cause we're auto loading all actions

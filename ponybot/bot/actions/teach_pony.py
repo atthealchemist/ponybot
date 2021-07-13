@@ -1,4 +1,4 @@
-from pony.exceptions import PonyTiredException
+from pony.exceptions import PonyException
 from bot.actions.create_pony import ActionCreatePony
 from django.utils.translation import gettext as _
 
@@ -32,7 +32,11 @@ class ActionTeachPony(SimpleAction):
         user_pony = user_ponies.first()
         try:
             user_pony.learn()
-            self.say(peer_id, _(
-                f"Ваша пони ({user_pony.name}) учится! Теперь её опыт равен {user_pony.experience}"))
-        except PonyTiredException as ex:
+            self.say(
+                peer_id,
+                message=_(
+                    f"Ваша пони ({user_pony.name.capitalize()}) учится! Теперь её опыт равен {user_pony.experience}"),
+                prefix='📚'
+            )
+        except PonyException as ex:
             self.warn(peer_id, ex)

@@ -54,7 +54,37 @@ class BaseConfiguration(Configuration):
         'PONY_HUNGER_MINS': (30, 'Pony hunger period (in mins)', int),
         'PONY_LEARNING_TIMEOUT_MINS': (5, 'Pony learning timeout (in mins)', int),
         'PONY_FEEDING_TIMEOUT_MINS': (7, 'Pony feeding timeout (in mins)', int),
-        'PONY_BOT_ADMINS_LIST': ("", "Ponybot admins user_id list, separated by comma", str)
+        'PONY_BOT_ADMINS_LIST': ("", "Ponybot admins user_id list, separated by comma", str),
+        'PONY_ICON_LEARNING': ('📚', "Symbol for pony learning", str),
+        'PONY_ICON_FEEDING': ('🍼', "Symbol for pony feeding", str),
+        'PONY_ICON_NAME': ('🐎', "Symbol for pony name", str),
+        'PONY_ICON_RACE': ('👬', "Symbol for pony race", str),
+        'PONY_ICON_SATIETY': ('🍎', "Symbol for pony satiety", str),
+        'PONY_ICON_LEVEL': ('📖', "Symbol for pony level", str),
+        'PONY_ICON_OWNER': ('👥', "Symbol for pony owner", str),
+        'PONY_ICON_CONVERSATION': ('💬', "Symbol for pony conversation", str),
+    }
+
+    CONSTANCE_CONFIG_FIELDSETS = {
+        'General': (
+            'PONY_BOT_ADMINS_LIST',
+        ),
+        'Periods/Timeouts': (
+            'PONY_SELF_EDUCATION_MINS',
+            'PONY_HUNGER_MINS',
+            'PONY_LEARNING_TIMEOUT_MINS',
+            'PONY_FEEDING_TIMEOUT_MINS'
+        ),
+        'Icons': (
+            'PONY_ICON_LEARNING',
+            'PONY_ICON_FEEDING',
+            'PONY_ICON_NAME',
+            'PONY_ICON_RACE',
+            'PONY_ICON_SATIETY',
+            'PONY_ICON_LEVEL',
+            'PONY_ICON_OWNER',
+            'PONY_ICON_CONVERSATION',
+        ),
     }
 
     LOGGING = {

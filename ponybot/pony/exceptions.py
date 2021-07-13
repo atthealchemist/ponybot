@@ -1,4 +1,7 @@
+from bot.utils import timedelta_to_time
 from django.utils.translation import gettext as _
+from django.utils import timezone
+from datetime import timedelta
 
 from constance import config
 
@@ -15,7 +18,7 @@ class PonyDeadException(PonyException):
         super().__init__(pony=pony)
 
     def __str__(self):
-        return _(f"Ваша пони {self.pony_name} мертва, все её действия отключены.")
+        return _(f"Ваша пони ({self.pony_name}) мертва, все её действия отключены.")
 
 
 class PonyOverfeedException(PonyException):
@@ -23,7 +26,7 @@ class PonyOverfeedException(PonyException):
         super().__init__(pony=pony)
 
     def __str__(self):
-        return _(f"Ваша пони {self.pony_name} объелась и не может больше есть")
+        return _(f"Ваша пони ({self.pony_name}) объелась и не может больше есть")
 
 
 class PonyFeedingTimeoutException(PonyException):
@@ -31,7 +34,12 @@ class PonyFeedingTimeoutException(PonyException):
         super().__init__(pony=pony)
 
     def __str__(self):
-        return _(f"Ваша пони {self.pony_name} ела совсем недавно, попробуйте через {config.PONY_FEEDING_TIMEOUT_MINS} минут...")
+        next_feeding = self.pony.last_feeding + \
+            timedelta(minutes=config.PONY_FEEDING_TIMEOUT_MINS)
+        time_to_feed = timedelta_to_time(
+            next_feeding - timezone.now()
+        ).strftime("%-M минут %-S секунд")
+        return _(f"Ваша пони ({self.pony_name}) ела совсем недавно, попробуйте через {time_to_feed}...")
 
 
 class PonyTiredException(PonyException):
@@ -39,4 +47,9 @@ class PonyTiredException(PonyException):
         super().__init__(pony=pony)
 
     def __str__(self):
-        return _(f"Ваша пони {self.pony_name} слишком устала, попробуйте через {config.PONY_LEARNING_TIMEOUT_MINS} минут...")
+        next_learning = self.pony.last_learning + \
+            timedelta(minutes=config.PONY_LEARNING_TIMEOUT_MINS)
+        time_to_learn = timedelta_to_time(
+            next_learning - timezone.now()
+        ).strftime("%-M минут %-S секунд")
+        return _(f"Ваша пони ({self.pony_name}) слишком устала, попробуйте через {time_to_learn}...")
