@@ -35,4 +35,4 @@ class ActionTeachPony(SimpleAction):
             self.say(peer_id, _(
                 f"Ваша пони ({user_pony.name}) учится! Теперь её опыт равен {user_pony.experience}"))
         except PonyTiredException as ex:
-            self.warn(peer_id, _(str(ex)))
+            self.warn(peer_id, ex)
