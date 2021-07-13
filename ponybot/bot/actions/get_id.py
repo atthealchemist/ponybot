@@ -3,18 +3,15 @@ from django.utils.translation import gettext as _
 
 
 class ActionGetId(SimpleAction):
+    aliases = (
+        'мой ид',
+        'мой id'
+    )
 
-    def __init__(self, notifier=None):
-        super().__init__(notifier)
+    def __init__(self, bot):
+        super().__init__(bot)
 
-        self.aliases = [
-            'мой ид',
-            'мой id'
-        ]
-
-    def call(self, event):
-        user_id = event.object.message.get('from_id')
-        peer_id = event.object.message.get('peer_id')
+    def call(self, user_id, peer_id, message, event):
         self.say(peer_id,
                  _(f"""
                         Ваш ID (user_id/from_id): {user_id}

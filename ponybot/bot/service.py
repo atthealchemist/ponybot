@@ -1,39 +1,32 @@
-from django.utils.crypto import get_random_string
-from bot.notifier import VkNotifier
 import logging
 import pkgutil
 import inspect
 import importlib
 
+from bot.api import BotVkAPI
+from django.utils.crypto import get_random_string
+
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-from vk_api.bot_longpoll import VkBotEventType
 
 from .models import PonybotAction, PonybotUser
 
 
 class PonybotService:
 
-    def __init__(self, private=False):
-        self.notifier = VkNotifier()
-
+    def __init__(self):
+        self.bot = BotVkAPI()
         self.is_running = False
-        self.case_sensitive = False
-        self.private = private
 
         self.logger = logging.getLogger("Ponybot")
 
-        self.actions = [
-            action_cls(
-                notifier=self.notifier
-            ) for action_cls in self.load_actions()
-        ]
+        self.actions = []
 
     def initialize_actions(self):
         for action_cls in self.load_actions():
-            action_instance = action_cls(notifier=self.notifier)
+            action_instance = action_cls(bot=self.bot)
             try:
                 PonybotAction.objects.get(
                     name=action_instance.action_id
@@ -72,69 +65,54 @@ class PonybotService:
 
         return actions
 
+    def initialize_user(self, user_id):
+        try:
+            called_user = get_user_model().objects.get(username=user_id)
+        except PonybotUser.DoesNotExist:
+            called_user = get_user_model().objects.create(
+                username=user_id,
+                password=get_random_string(32)
+            )
+        return called_user
+
     def start(self):
         if not self.is_running:
             self.is_running = True
             self.logger.debug(
                 f"Auto loaded actions: {self.actions}")
             self.initialize_actions()
-            self.__process()
 
-    # def send_from_bot(self, peer_id, message):
-    #     self.api.messages.send(
-    #         peer_id=peer_id,
-    #         message=message,
-    #         random_id=get_random_id()
-    #     )
+            self.logger.info(
+                f"Started vk bot @ {timezone.now()}, listening...")
+            try:
+                for user_id, peer_id, message, event in self.bot.listen_new_messages():
+                    self.listen_message_from_user(
+                        user_id, peer_id, message, event)
+            except KeyboardInterrupt:
+                self.logger.info(
+                    f"Stopping vk bot @ {timezone.now()}, exiting...")
+                self.stop()
 
-    def on_bot_send_event(self, event):
-        self.logger.debug(f'message_reply evt {event}')
-        message_obj = event.object
-        from_id = message_obj.get('from_id')
-        message = message_obj.get('text')
-        self.logger.debug(f'bot {from_id} reply: {message}')
-
-    def on_user_send_event(self, event):
-        self.logger.debug(f'message_new evt {event}')
-        message_obj = event.object.message
-        from_id = message_obj.get('from_id')
-        peer_id = message_obj.get('peer_id')
-        message = message_obj.get('text')
+    def listen_message_from_user(self, user_id, peer_id, message, event):
         self.logger.debug(
-            f'got new message from user {from_id} [peer {peer_id}]: {message}')
+            f'got new message from user {user_id} [peer {peer_id}]: {message}')
 
         for action in self.actions:
             related_action = PonybotAction.objects.get(name=action.action_id)
-            try:
-                called_user = get_user_model().objects.get(username=from_id)
-            except PonybotUser.DoesNotExist:
-                called_user = get_user_model().objects.create(
-                    username=from_id,
-                    password=get_random_string(32)
-                )
+            called_user = self.initialize_user(user_id)
+
             if any([a for a in related_action.aliases if message.lower() in a.lower()]):
                 if related_action.is_admin_only and not called_user.is_admin():
-                    self.notifier.notify(
-                        from_id, _("У вас недостаточно прав для доступа к этой команде!"))
+                    self.warn(peer_id, _(
+                        "У вас недостаточно прав для доступа к этой команде!"))
                     return
-                action.call(event)
+                action.call(
+                    user_id=user_id,
+                    peer_id=peer_id,
+                    message=message,
+                    event=event
+                )
                 return
-
-    def __process(self):
-        if not self.is_running:
-            return
-
-        self.logger.info(f"Started vk bot @ {timezone.now()}, listening...")
-        try:
-            for event in self.notifier.long_poll.listen():
-                if event.type == VkBotEventType.MESSAGE_NEW:
-                    if 'action' in event.object.message:
-                        break
-                    self.on_user_send_event(event)
-                elif event.type == VkBotEventType.MESSAGE_REPLY:
-                    self.on_bot_send_event(event)
-        except KeyboardInterrupt:
-            self.logger.info(f"Stopping vk bot @ {timezone.now()}, exiting...")
 
     def stop(self):
         if self.is_running:
