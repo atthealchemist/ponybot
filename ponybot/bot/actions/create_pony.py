@@ -46,7 +46,7 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
             answer_message=_("Вашу пони теперь зовут: {0}")
         )
 
-        pony_info['sex'] = self.choice(
+        pony_info['race'] = self.choice(
             user_id,
             question=_(f"Выберите расу вашей пони: "),
             choices=['пегас', 'единорог', 'земнопони']
@@ -62,7 +62,7 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
         new_pony = Pony.objects.create(**pony_info)
         new_pony.set_owner(user_id)
         new_pony.set_conversation(peer_id)
-        new_pony.set_sex(pony_info.get('sex'))
+        new_pony.set_race(pony_info.get('race'))
 
         if 'avatar_url' in pony_info:
             new_pony.set_avatar(pony_info.get('avatar_url'))

@@ -77,9 +77,9 @@ class Pony(models.Model):
         _("Avatar"), max_length=256, null=True, blank=True
     )
 
-    def set_sex(self, sex):
-        self.race = Race.from_user_choice(sex)
-        self.save(update_fields=['sex'])
+    def set_race(self, race):
+        self.race = Race.from_user_choice(race)
+        self.save(update_fields=['race'])
 
     def set_owner(self, owner_id):
         self.owner = str(owner_id)
