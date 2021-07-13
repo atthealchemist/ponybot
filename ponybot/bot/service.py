@@ -1,3 +1,4 @@
+from bot.exceptions import IsAdminOnlyCommand
 from bot.notifier import VkNotifier
 import logging
 import pkgutil
@@ -6,8 +7,11 @@ import importlib
 
 from django.utils.translation import gettext as _
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 from vk_api.bot_longpoll import VkBotEventType
+
+from .models import PonybotAction
 
 
 class PonybotService:
@@ -26,6 +30,22 @@ class PonybotService:
                 notifier=self.notifier
             ) for action_cls in self.load_actions()
         ]
+
+    def initialize_actions(self):
+        for action_cls in self.load_actions():
+            action_instance = action_cls(notifier=self.notifier)
+            try:
+                PonybotAction.objects.get(
+                    name=action_instance.action_id
+                )
+            except PonybotAction.DoesNotExist:
+                PonybotAction.objects.create(
+                    name=action_instance.action_id,
+                    aliases=action_instance.aliases,
+                    is_admin_only=False
+                )
+            self.logger.info(f"Initialized {action_instance} in database")
+            self.actions.append(action_instance)
 
     def load_actions(self):
         actions = []
@@ -57,6 +77,7 @@ class PonybotService:
             self.is_running = True
             self.logger.debug(
                 f"Auto loaded actions: {self.actions}")
+            self.initialize_actions()
             self.__process()
 
     # def send_from_bot(self, peer_id, message):
@@ -83,13 +104,14 @@ class PonybotService:
             f'got new message from user {from_id} [peer {peer_id}]: {message}')
 
         for action in self.actions:
-            if any([a for a in action.aliases if message.lower() in a.lower()]):
+            related_action = PonybotAction.objects.get(name=action.action_id)
+            called_user = get_user_model().objects.get(username=from_id)
+            if any([a for a in related_action.aliases if message.lower() in a.lower()]):
+                if related_action.is_admin_only and not called_user.is_admin():
+                    self.notifier.notify(from_id, str(IsAdminOnlyCommand))
+                    return
                 action.call(event)
                 return
-        # else:
-        #     self.send_from_bot(peer_id,
-        #                        _(f'Команда "{message}" не распознана!\nДоступные команды:\n'
-        #                          + "\n".join([f"{i + 1}. {str(a)}" for i, a in enumerate(self.actions)])))
 
     def __process(self):
         if not self.is_running:
