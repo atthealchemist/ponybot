@@ -9,7 +9,7 @@ from .models import Pony
 class PonyAdmin(admin.ModelAdmin):
     readonly_fields = ('last_learning', 'last_feeding')
     list_display = (
-        'name', 'sex', 'is_alive', 'owner', 'conversation',
+        'name', 'race', 'is_alive', 'owner', 'conversation',
         'satiety', 'experience', 'last_learning', 'last_feeding'
     )
-    list_filter = ('is_alive', 'sex', 'owner')
+    list_filter = ('is_alive', 'race', 'owner')

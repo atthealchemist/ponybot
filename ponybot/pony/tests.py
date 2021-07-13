@@ -159,11 +159,11 @@ def test_pony_set_conversation():
 
 @pytest.mark.django_db
 def test_pony_set_sex():
-    from pony.models import PonySex
+    from pony.models import Race
     my_pony = Pony.objects.create(name="Flutter Bat")
     my_pony.set_sex("пегас")
 
-    assert my_pony.sex == PonySex.PEGASUS
+    assert my_pony.sex == Race.PEGASUS
 
     failed = Pony.objects.create(name="Spike")
     with pytest.raises(DatabaseError):
