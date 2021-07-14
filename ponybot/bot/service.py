@@ -105,15 +105,11 @@ class PonybotService:
             related_action = PonybotAction.objects.get(name=action.action_id)
             called_user = self.initialize_user(user_id)
 
-            if DialogSession.objects.filter(
-                opened=True,
-                action_id=action.action_id,
-                peer_id=peer_id
-            ).exists():
-                self.bot.logger.debug("Already opened session")
-                return
-
-            if any([a for a in related_action.aliases if message.lower() in a.lower()]):
+            if any([
+                alias
+                for alias in related_action.aliases
+                if message.lower() in alias.lower()
+            ]):
                 if related_action.is_admin_only and not called_user.is_admin():
                     self.warn(peer_id, _(
                         "У вас недостаточно прав для доступа к этой команде!"))

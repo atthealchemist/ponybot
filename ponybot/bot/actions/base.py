@@ -64,18 +64,23 @@ class DialogAction(SimpleAction):
     def ask(self, session, question, answer_message=None):
         self.bot.say(session, question.lower())
         for user_id, peer_id, message, event in self.bot.listen_new_messages():
-            if 'action' in event.object.message:
-                break
-
             active_user_session = DialogSession.objects.filter(
                 opened=True,
                 user_id=user_id,
                 peer_id=peer_id
             )
             if not active_user_session.exists():
-                continue
-
-            active_user_session = active_user_session.first()
+                # breakpoint
+                print('ч')
+                active_user_session = DialogSession.objects.create(
+                    user_id=user_id,
+                    peer_id=peer_id
+                )
+                self.bot.logger.debug(
+                    f"Created new session (dialog_loop): {active_user_session}")
+                # continue
+            else:
+                active_user_session = active_user_session.first()
             active_user_session.set_last_message(
                 user_id,
                 peer_id,
@@ -85,6 +90,8 @@ class DialogAction(SimpleAction):
                 'user_id')
 
             if last_message_user_id != user_id:
+                # breakpoint
+                print('a')
                 continue
 
             if answer_message:
