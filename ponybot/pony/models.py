@@ -112,6 +112,10 @@ class Pony(models.Model):
         self.is_alive = False
         self.save(update_fields=['is_alive'])
 
+    @property
+    def owner_alloc(self):
+        return f"[id{self.owner}|{self.owner_title}]"
+
     def feed(self):
         if not self.is_alive:
             raise PonyDeadException(self)
@@ -177,8 +181,8 @@ class Pony(models.Model):
             📖\tLevel: $experience
             🍎\tSatiety: $satiety
             ---
-            👥\tOwner: $owner_title [$owner]
-            💬\tConversation: $conversation_title [$conversation]
+            👥\tOwner: $user
+            💬\tConversation: [id$conversation|$conversation_title]
             ---
             📚\tLast learning: $last_learning
             🍼\tLast feeding: $last_feeding
@@ -197,8 +201,7 @@ class Pony(models.Model):
             sex=self.race,
             experience=self.experience,
             satiety=self.satiety,
-            owner_title=self.owner_title,
-            owner=self.owner,
+            user=self.owner_alloc,
             conversation_title=self.conversation_title,
             conversation=self.conversation,
             last_learning=last_learning,

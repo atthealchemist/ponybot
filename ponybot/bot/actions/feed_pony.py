@@ -17,11 +17,11 @@ class ActionFeedPony(SimpleAction):
     def __init__(self, bot):
         super().__init__(bot=bot)
 
-    def call(self, user_id, peer_id, message, event):
+    def call(self, session, message, event):
         try:
             user_ponies = Pony.objects.filter(
-                owner=user_id,
-                conversation=peer_id,
+                owner=session.user_id,
+                conversation=session.peer_id,
                 is_alive=True
             )
             if not user_ponies.exists():
@@ -30,10 +30,10 @@ class ActionFeedPony(SimpleAction):
             user_pony = user_ponies.first()
             user_pony.feed()
             self.bot.say(
-                peer_id,
+                session.peer_id,
                 message=_(
                     f"Ваша пони ({user_pony.name.capitalize()}) покушала и теперь её сытость равна {user_pony.satiety}"),
                 prefix='🍼'
             )
         except PonyException as ex:
-            self.bot.warn(peer_id, ex)
+            self.bot.warn(session.peer_id, ex)
