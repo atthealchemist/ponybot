@@ -1,4 +1,5 @@
 from abc import ABC as AbstractBase, abstractmethod
+from bot.models import DialogSession
 
 from django.utils.translation import gettext as _
 from bot.utils import camel_to_snake
@@ -27,7 +28,7 @@ class Action(AbstractBase):
         self.aliases = aliases
 
     @abstractmethod
-    def call(self, user_id, peer_id, message, user):
+    def call(self, session, message, user):
         pass
 
     def __repr__(self):
@@ -48,28 +49,56 @@ class SimpleAction(Action):
         self.bot = bot
 
 
+class DialogStep:
+
+    def __str__(self):
+        return f"Step (func={self.func_name} param={self.param_name} question={self.attrs.get('question', 'not set')})"
+
+    def __init__(self, func_name="", param_name="", **attrs):
+        self.func_name = func_name
+        self.param_name = param_name
+        self.attrs = attrs
+
 class DialogAction(SimpleAction):
 
-    def ask(self, peer_id, user, question, answer_message=None):
-        self.bot.say(peer_id, question)
-        for user_id, _, message, event in self.bot.listen_new_messages():
-            if any(['action' in event.object.message]):
-                self.bot.logger.debug("user not equal, exiting...")
+    def ask(self, session, question, answer_message=None):
+        self.bot.say(session, question.lower())
+        for user_id, peer_id, message, event in self.bot.listen_new_messages():
+            if 'action' in event.object.message:
                 break
+
+            active_user_session = DialogSession.objects.filter(
+                opened=True,
+                user_id=user_id,
+                peer_id=peer_id
+            )
+            if not active_user_session.exists():
+                continue
+
+            active_user_session = active_user_session.first()
+            active_user_session.set_last_message(
+                user_id,
+                peer_id,
+                message
+            )
+            last_message_user_id = active_user_session.last_message.get(
+                'user_id')
+
+            if last_message_user_id != user_id:
+                continue
 
             if answer_message:
                 self.bot.say(
-                    peer_id,
+                    session,
                     answer_message.format(message)
                 )
             return message
 
-    def choice(self, peer_id, user, question, choices, answer_message=None):
+    def choice(self, session, question, choices, answer_message=None):
         answer = ""
         while answer not in choices:
             answer = self.ask(
-                peer_id=peer_id,
-                user=user,
+                session,
                 question=question + ', '.join(choices),
                 answer_message=answer_message
             )
@@ -77,12 +106,13 @@ class DialogAction(SimpleAction):
             answer = answer.lower()
             if answer in choices:
                 break
-            self.bot.warn(peer_id, _(
+            self.bot.warn(session, _(
                 "Такого варианта нет среди предложенных!"))
         return answer
 
     def __init__(self, bot):
         super().__init__(bot=bot)
+        self.steps = None
 
 
 class UploadPhotoAction(SimpleAction):
@@ -97,22 +127,26 @@ class UploadPhotoAction(SimpleAction):
             ])
         return res
 
-    def ask_photo(self, peer_id, user, question, declines=None):
-        self.bot.say(peer_id, question)
-        for from_id, peer_id, _, event in self.bot.listen_new_messages():
-            if from_id != user.username:
-                break
+    def ask_photo(self, session, question, declines=None):
+        self.bot.say(session, question)
+        for user_id, peer_id, message, event in self.bot.listen_new_messages():
+            if not DialogSession.objects.filter(
+                opened=True,
+                user_id=user_id,
+                peer_id=peer_id
+            ).exists():
+                continue
 
             if any([
                 d for d in declines
-                if d.lower() in event.object.message.get('text').lower()
+                if d.lower() in message.lower()
             ]):
-                break
+                return "-"
 
             # We're getting attachment url from event
             for attachment in self.__get_attachments(event):
-                with requests.Session() as session:
-                    image = session.get(attachment.get('url'), stream=True)
+                with requests.Session() as ws:
+                    image = ws.get(attachment.get('url'), stream=True)
                     photo_url = self.bot.upload_photo(
                         image.raw,
                         peer_id=peer_id

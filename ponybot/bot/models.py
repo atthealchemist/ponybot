@@ -16,6 +16,14 @@ class PonybotUser(AbstractUser):
         verbose_name = "Ponybot User"
         verbose_name_plural = "Ponybot Users"
 
+    @property
+    def alloc(self):
+        return f"[id{self.username}|{self.full_name}]"
+
+    @property
+    def full_name(self):
+        return ' '.join([self.first_name, self.last_name])
+
     def is_admin(self, user_id):
         return self.is_superuser() or str(user_id) in config.PONY_BOT_ADMINS_LIST.split(',')
 

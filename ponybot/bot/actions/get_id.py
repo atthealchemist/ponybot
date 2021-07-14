@@ -11,12 +11,12 @@ class ActionGetId(SimpleAction):
     def __init__(self, bot):
         super().__init__(bot)
 
-    def call(self, user_id, peer_id, message, event):
-        self.say(peer_id,
+    def call(self, session, message, event):
+        self.say(session.peer_id,
                  _(f"""
-                        Ваш ID (user_id/from_id): {user_id}
+                        Ваш ID (user_id/from_id): {session.user_id}
                         ID группы (group_id): {event.group_id}
-                        ID чата/беседы (peer_id): {peer_id}
+                        ID чата/беседы (peer_id): {session.peer_id}
                         """))
 
     def __str__(self):

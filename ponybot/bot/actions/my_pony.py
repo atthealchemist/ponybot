@@ -17,18 +17,18 @@ class ActionMyPonyProfile(SimpleAction):
     def __init__(self, bot=None):
         super().__init__(bot)
 
-    def call(self, user_id, peer_id, message, event):
-        user_ponies = Pony.objects.filter(owner=user_id, is_alive=True)
+    def call(self, session, message, event):
+        user_ponies = Pony.objects.filter(owner=session.user_id, is_alive=True)
         if not user_ponies.exists():
-            self.bot.warn(peer_id, _(
+            self.bot.warn(session, _(
                 f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
             ))
             return
-
-        self.bot.say(peer_id, _(f"Ваши пони:\n"))
+        self.bot.say(session, _(f"Ваши пони:\n"))
         for idx, pony in enumerate(user_ponies):
             self.bot.say(
-                peer_id,
+                session,
                 message=f"{idx + 1}. {str(pony)}",
+                no_alloc=True,
                 attachment=pony.avatar_url if pony.avatar_url else ""
             )

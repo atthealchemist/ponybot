@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 
-from .models import PonybotAction, PonybotUser
+from .models import DialogSession, PonybotAction, PonybotUser
 
 
 class PonybotService:
@@ -75,12 +75,16 @@ class PonybotService:
             )
         return called_user
 
+    def cleanup_opened_sessions(self):
+        DialogSession.objects.all().delete()
+
     def start(self):
         if not self.is_running:
             self.is_running = True
             self.logger.debug(
                 f"Auto loaded actions: {self.actions}")
             self.initialize_actions()
+            self.cleanup_opened_sessions()
 
             self.logger.info(
                 f"Started vk bot @ {timezone.now()}, listening...")
@@ -101,17 +105,32 @@ class PonybotService:
             related_action = PonybotAction.objects.get(name=action.action_id)
             called_user = self.initialize_user(user_id)
 
+            if DialogSession.objects.filter(
+                opened=True,
+                action_id=action.action_id,
+                peer_id=peer_id
+            ).exists():
+                self.bot.logger.debug("Already opened session")
+                return
+
             if any([a for a in related_action.aliases if message.lower() in a.lower()]):
                 if related_action.is_admin_only and not called_user.is_admin():
                     self.warn(peer_id, _(
                         "У вас недостаточно прав для доступа к этой команде!"))
                     return
-                action.call(
-                    user_id=user_id,
+                active_session = DialogSession.objects.create(
+                    action_id=action.action_id,
                     peer_id=peer_id,
+                    user_id=user_id
+                )
+                self.bot.logger.debug(f"Opened new {active_session}")
+                action.call(
+                    session=active_session,
                     message=message,
                     event=event
                 )
+                self.bot.logger.debug(f"Closed {active_session}")
+                active_session.close()
                 return
 
     def stop(self):

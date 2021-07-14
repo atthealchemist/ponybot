@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth import get_user_model
 from vk_api import VkApi, VkUpload
 from vk_api.bot_longpoll import VkBotEventType, VkBotLongPoll
 from vk_api.utils import get_random_id
@@ -14,15 +15,28 @@ class BotAPI:
 
 class BotVkAPI(BotAPI):
 
-    def warn(self, user_id, message, attachment=None):
-        self.say(user_id, message=f"⚠ {message} ⚠", attachment=attachment)
+    def warn(self, session, message, attachment=None):
+        self.say(
+            session,
+            prefix='⚠',
+            suffix='⚠',
+            message=message, attachment=attachment
+        )
 
-    def say(self, user_id, message, attachment=None, prefix='', suffix=''):
-        message = ' '.join([prefix, message, suffix])
-        self.send_message(user_id, message, attachment)
+    def say(self, session, message, attachment=None, prefix='', suffix='', no_alloc=False):
+        user = get_user_model().objects.get(username=session.user_id)
+        alloc = f"{user.first_name} {user.last_name}"
 
-    def congratulate(self, user_id, message, attachment=None):
-        self.say(user_id, message=f"✅ {message} ✅", attachment=attachment)
+        content = f"{alloc}, {message[:1].lower() + message[1:]}"
+        if no_alloc:
+            content = message
+
+        message = ' '.join([prefix, content, suffix])
+        self.send_message(session.peer_id, message=message,
+                          attachment=attachment)
+
+    def congratulate(self, session, message, attachment=None):
+        self.say(session, message=f"✅ {message} ✅", attachment=attachment)
 
     def get_conversation_title(self, peer_id):
         return self.api.messages.get_conversations_by_id(
@@ -42,7 +56,8 @@ class BotVkAPI(BotAPI):
             peer_id=receiver,
             message=message,
             random_id=get_random_id(),
-            attachment=attachment
+            attachment=attachment,
+            disable_mentions=True
         )
 
     def upload_photo(self, photos, peer_id):
@@ -62,7 +77,6 @@ class BotVkAPI(BotAPI):
             if event.type == VkBotEventType.MESSAGE_NEW:
                 if 'action' in event.object.message:
                     break
-                self.logger.debug(f'message_new evt {event}')
                 message_obj = event.object.message
                 from_id = message_obj.get('from_id')
                 peer_id = message_obj.get('peer_id')
