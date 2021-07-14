@@ -58,32 +58,6 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
 
             pony_info[step.param_name] = step_result
 
-        # pony_name = self.ask(
-        #     session,
-        #     question=_(
-        #         f"Как вы хотите назвать вашу пони?"),
-        #     answer_message=_("Вашу пони теперь зовут: {0}")
-        # )
-        # if not pony_name:
-        #     return
-        # pony_info['name'] = pony_name
-
-        # pony_race = self.choice(
-        #     session,
-        #     question=_(f"Выберите расу вашей пони: "),
-        #     choices=['пегас', 'единорог', 'земнопони']
-        # )
-        # if not pony_race:
-        #     return
-        # pony_info['race'] = pony_race
-
-        # pony_info['avatar_url'] = self.ask_photo(
-        #     session,
-        #     question=_(
-        #         "Прикрепите аватар вашей пони (нажмите на скрепочку и выберите фото):"),
-        #     declines=['-', 'нет', 'не надо']
-        # )
-
         if pony_info.keys():
             new_pony = Pony.objects.create(**pony_info)
             new_pony.set_owner(
