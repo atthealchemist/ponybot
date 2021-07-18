@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  # Postgresql
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5544:5432
+
+
+  # We're using Redis as message broker
+  redis:
+    image: redis
+  
+  # Our project configuration
+  ponybot:
+    build:
+      context: .
+    restart: always
+    
+    ports:
+      - 8000:8000
+    
+    volumes:
+      - /app:/app
+    
+    command: >
+      gunicorn --workers=4 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker ponybot:wsgi
+
+    depends_on: 
+      - db
+      - redis
