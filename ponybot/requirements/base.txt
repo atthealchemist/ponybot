@@ -1,13 +1,10 @@
-# Server requirements
-gunicorn==20.0.4
-# Django requirements
+# Base project requirements
+
+# Django
 Django>=3.2.5
 django-constance>=2.8.0
 django-configurations>=2.2
 django-celery-beat>=2.2.1
-# Testing requirements
-pytest>=6.2.4
-pytest-django>=4.4.0
 # Celery
 celery>=5.1.2
 # VK API
