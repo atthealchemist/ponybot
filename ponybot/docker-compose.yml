@@ -37,3 +37,18 @@ services:
     depends_on: 
       - db
       - redis
+
+  bot:
+    container_name: ponybot-bot
+    build:
+      context: .
+    restart: always
+
+    # links:
+    #   - server
+    
+    # depends_on: 
+    #   - server
+    
+    command: >
+      python manage.py start_bot
