@@ -1,5 +1,6 @@
 # Defining variables
 ARG PONYBOT_ROOT=/ponybot/app
+ARG PONYBOT_ENVIRONMENT=dev
 
 # For more information, please refer to https://aka.ms/vscode-docker-python
 FROM python:3.8-slim-buster
@@ -12,7 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-COPY .env ./ponybot/app/.env
+COPY .env-${PONYBOT_ENVIRONMENT} ./ponybot/app/.env
 ## Install pip requirements
 COPY requirements ./requirements
 # Install server requirements
