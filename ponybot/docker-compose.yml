@@ -17,10 +17,12 @@ services:
 
   # We're using Redis as message broker
   redis:
+    container_name: ponybot-redis
     image: redis
   
   # Our project configuration
-  ponybot:
+  server:
+    container_name: ponybot-backend-server
     build:
       context: .
     restart: always
@@ -30,10 +32,22 @@ services:
     
     volumes:
       - /app:/app
-    
-    command: >
-      gunicorn --workers=4 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker ponybot:wsgi
 
     depends_on: 
       - db
       - redis
+
+  bot:
+    container_name: ponybot-bot
+    build:
+      context: .
+    restart: always
+
+    # links:
+    #   - server
+    
+    # depends_on: 
+    #   - server
+    
+    command: >
+      python manage.py start_bot
