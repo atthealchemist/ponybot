@@ -27,6 +27,9 @@ RUN python -m pip install -r requirements/testing.txt
 WORKDIR ${PONYBOT_ROOT}
 COPY . ${PONYBOT_ROOT}
 
+# Serving static files
+RUN mkdir -p ${PONYBOT_ROOT}/static/
+
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 RUN adduser -u 5678 --disabled-password --gecos "" appuser
 USER appuser
