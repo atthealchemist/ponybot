@@ -1,3 +1,4 @@
 # Server requirements
 gunicorn>=20.0.4
 uvicorn>=0.14.0
+psycopg2-binary>=2.9.1

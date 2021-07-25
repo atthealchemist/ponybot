@@ -4,10 +4,15 @@ services:
 
   # Postgresql
   db:
+    container_name: ponybot-postgres-db
     image: postgres
     restart: always
     ports:
-      - 5544:5432
+      - "5432:5432"
+    environment: 
+      - POSTGRES_DB=ponybot_dev
+      - POSTGRES_USER=ponybot_dev_admin
+      - POSTGRES_PASSWORD=!ponybot-postgres-dev!
 
 
   # We're using Redis as message broker

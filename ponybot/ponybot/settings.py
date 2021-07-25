@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
 from configurations import Configuration, values
 from pathlib import Path
 
@@ -21,10 +20,19 @@ class BaseConfiguration(Configuration):
     # Application definition
     SECRET_KEY = values.Value()
 
+    # Database envs
+    POSTGRES_DB = values.Value()
+    POSTGRES_USER = values.Value()
+    POSTGRES_PASSWORD = values.Value()
+
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'ponybot_dev',
+            'USER': 'ponybot_dev_admin',
+            'PASSWORD': '!ponybot-postgres-dev!',
+            'HOST': 'db',
+            'PORT': '5432',
         }
     }
 
