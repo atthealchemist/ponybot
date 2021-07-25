@@ -51,3 +51,14 @@ services:
     
     command: >
       python manage.py start_bot
+
+  nginx:
+    image: nginx:latest
+    container_name: ponybot-nginx-static
+    ports:
+        - "9000:9000"
+    volumes:
+        - ./src:/src  # for syncing with django source code
+        - ./config/nginx:/etc/nginx/conf.d
+    depends_on:
+      - server
