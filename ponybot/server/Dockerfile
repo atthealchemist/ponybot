@@ -1,12 +1,12 @@
-# For more information, please refer to https://aka.ms/vscode-docker-python
 FROM python:3.8-slim-buster
 
 EXPOSE 8000
 
 # Defining variables
-ENV PONYBOT_ENVIRONMENT=dev
-ENV PONYBOT_ROOT=/ponybot/${PONYBOT_ENVIRONMENT}/app
-ENV PONYBOT_SERVER_WORKERS_COUNT=4
+ENV PONYBOT_SERVER_SERVICE_NAME=server
+ENV PONYBOT_SERVER_SERVICE_ENVIRONMENT=dev
+ENV PONYBOT_SERVER_SERVICE_ROOT=/ponybot/${PONYBOT_SERVER_SERVICE_NAME}/${PONYBOT_SERVER_SERVICE_ENVIRONMENT}
+ENV PONYBOT_SERVER_SERVICE_WORKERS_COUNT=4
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -14,21 +14,28 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-COPY .env-${PONYBOT_ENVIRONMENT} ${PONYBOT_ROOT}/.env
-## Install pip requirements
-COPY requirements ./requirements
+# Switching to service root directory
+WORKDIR ${PONYBOT_SERVER_SERVICE_ROOT}
+
+## Install poetry
+RUN pip install --upgrade pip && pip --no-cache-dir install poetry
+
+# Copying env file
+COPY .env-${PONYBOT_SERVER_SERVICE_ENVIRONMENT} ${PONYBOT_ROOT}/.env
+# Copying service sources
+COPY . ${PONYBOT_SERVER_SERVICE_ROOT}
+
+# Setting rights to execute scripts in scripts folder
+RUN chmod +x -R ${PONYBOT_SERVER_SERVICE_ROOT}/scripts/
+
 # Install server requirements
-RUN python -m pip install -r requirements/server.txt
-# Install base application requirements
-RUN python -m pip install -r requirements/base.txt
-# Install testing requirements
-RUN python -m pip install -r requirements/testing.txt
+RUN poetry install
 
-WORKDIR ${PONYBOT_ROOT}
-COPY . ${PONYBOT_ROOT}
+# Creates a non-root user adds permission to access the app folder
+RUN adduser --disabled-password --gecos "" server_user
+USER server_user
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-RUN adduser -u 5678 --disabled-password --gecos "" appuser
-USER appuser
+# Switching to poetry venv
+# RUN ./scripts/docker-poetry-activate.sh
 
-CMD ["./docker-entrypoint.sh"]
+ENTRYPOINT "./scripts/docker-entrypoint.sh"

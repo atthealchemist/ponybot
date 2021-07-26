@@ -23,8 +23,7 @@ services:
   # Our project configuration
   server:
     container_name: ponybot-backend-server
-    build:
-      context: .
+    build: ./server
     restart: always
     
     ports:
@@ -39,15 +38,5 @@ services:
 
   bot:
     container_name: ponybot-bot
-    build:
-      context: .
+    build: ./bot
     restart: always
-
-    # links:
-    #   - server
-    
-    # depends_on: 
-    #   - server
-    
-    command: >
-      python manage.py start_bot

@@ -1,9 +1,10 @@
 #!/bin/bash
-python manage.py showmigrations | grep '\[ \]'
+echo "=== STARTING SERVICE $(PONYBOT_SERVER_SERVICE_NAME) ==="
+poetry run python manage.py showmigrations | grep '\[ \]'
 
 if [ $? -eq 0 ]; then
  echo "No migrations found, applying..."
- exec python manage.py migrate
+ exec poetry run python manage.py migrate
 else
     echo "Check migrations: ok!"
 fi
