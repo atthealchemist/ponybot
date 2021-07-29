@@ -17,6 +17,7 @@ redis = "^3.5.3"
 django-celery-beat = "^2.2.1"
 vk = "^2.0.2"
 vk-api = "^11.9.4"
+django-picklefield = "^3.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

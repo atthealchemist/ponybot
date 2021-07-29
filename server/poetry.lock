@@ -236,6 +236,20 @@ database = ["django-picklefield"]
 redis = ["redis"]
 
 [[package]]
+name = "django-picklefield"
+version = "3.0.1"
+description = "Pickled object field for Django"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[package.dependencies]
+Django = ">=2.2"
+
+[package.extras]
+tests = ["tox"]
+
+[[package]]
 name = "django-timezone-field"
 version = "4.2.1"
 description = "A Django app providing database and form fields for pytz timezone objects."
@@ -549,7 +563,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "47b5b4617011c429c9c0b0b1c8d6d9cf69118809212411da2b6597e56759b2e5"
+content-hash = "c7aad85897d6198857c42fa195f449cbee1631cb6afec93925d8297d634ef962"
 
 [metadata.files]
 amqp = [
@@ -618,6 +632,10 @@ django-configurations = [
 django-constance = [
     {file = "django-constance-2.8.0.tar.gz", hash = "sha256:0a492454acc78799ce7b9f7a28a00c53427d513f34f8bf6fdc90a46d8864b2af"},
     {file = "django_constance-2.8.0-py3-none-any.whl", hash = "sha256:60fec73e397d5f4f7440f611b18d3e7ce5342647f316fedc47b62e1411c849e7"},
+]
+django-picklefield = [
+    {file = "django-picklefield-3.0.1.tar.gz", hash = "sha256:15ccba592ca953b9edf9532e64640329cd47b136b7f8f10f2939caa5f9ce4287"},
+    {file = "django_picklefield-3.0.1-py3-none-any.whl", hash = "sha256:3c702a54fde2d322fe5b2f39b8f78d9f655b8f77944ab26f703be6c0ed335a35"},
 ]
 django-timezone-field = [
     {file = "django-timezone-field-4.2.1.tar.gz", hash = "sha256:97780cde658daa5094ae515bb55ca97c1352928ab554041207ad515dee3fe971"},
