@@ -29,7 +29,7 @@ run_celery() {
     echo "Serving background tasks"
     celery -A server worker -l info
 }
- 
+
 run_celery_beat() {
     celery -A server beat -l info
 }
