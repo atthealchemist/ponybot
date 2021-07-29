@@ -142,6 +142,10 @@ class Pony(models.Model):
     def owner_alloc(self):
         return f"[id{self.owner}|{self.owner_title}]"
 
+    @property
+    def full_name(self):
+        return f'{self.name} из беседы "{self.conversation_title}"'
+
     def feed(self):
         if not self.is_alive:
             raise PonyDeadException(self)
