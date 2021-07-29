@@ -21,6 +21,8 @@ run_server() {
 }
 
 run_bot() {
+    setup_server
+    
     echo "Running bot"
     python manage.py start_bot
 }
