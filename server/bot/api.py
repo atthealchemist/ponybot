@@ -23,12 +23,12 @@ class BotVkAPI(BotAPI):
             message=message, attachment=attachment
         )
 
-    def say(self, session, message, attachment=None, prefix='', suffix='', no_alloc=False):
+    def say(self, session, message, attachment=None, prefix='', suffix='', mention=False):
         user = get_user_model().objects.get(username=session.user_id)
-        alloc = f"{user.first_name} {user.last_name}"
-
-        content = f"{alloc}, {message[:1].lower() + message[1:]}"
-        if no_alloc:
+        user_mention = f"{user.first_name} {user.last_name}"
+        message = str(message)  # proper handling exceptions
+        content = f"{user_mention}, {message[:1].lower() + message[1:]}"
+        if not mention:
             content = message
 
         message = ' '.join([prefix, content, suffix])
