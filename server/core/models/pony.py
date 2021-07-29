@@ -204,7 +204,7 @@ class Pony(models.Model):
             """
             🐎\tName: $name $dead
             👬\tRace: $race
-            👬\tGender: $gender
+            ⚤\tGender: $gender
             📖\tLevel: $experience
             🍎\tSatiety: $satiety
             ---
