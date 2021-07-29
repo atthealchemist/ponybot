@@ -66,6 +66,17 @@ services:
     command: celery
     networks:
       - backend
+  
+  celery-beat:
+    container_name: ponybot-celery-beat
+    restart: on-failure
+    image: ponybot-alpha_server:latest
+    entrypoint: ./entrypoint.sh
+    depends_on: 
+      - redis
+    command: celery-beat
+    networks:
+      - backend
 
   nginx:
     container_name: ponybot-nginx

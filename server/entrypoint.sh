@@ -30,6 +30,10 @@ run_celery() {
     celery -A server worker -l info
 }
  
+run_celery_beat() {
+    celery -A server beat -l info
+}
+ 
 main() {
     export $(grep -v '^#' .env | xargs)
 
@@ -46,6 +50,9 @@ main() {
             ;;
         'celery')
             run_celery
+            ;;
+        'celery-beat')
+            run_celery_beat
             ;;
         *)
             exec "$@"
