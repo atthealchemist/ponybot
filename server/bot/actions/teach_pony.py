@@ -17,18 +17,15 @@ class ActionTeachPony(SimpleAction):
         super().__init__(bot)
 
     def call(self, session, message, event):
-        try:
-            user_ponies = Pony.objects.filter(
-                owner=session.user_id, conversation=session.peer_id, is_alive=True)
-            if not user_ponies.exists():
-                raise PonyNotExist()
-            user_pony = user_ponies.first()
-            user_pony.learn()
-            self.bot.say(
-                session,
-                message=_(
-                    f"Ваша пони ({user_pony.name.capitalize()}) учится! Теперь её опыт равен {user_pony.experience}"),
-                prefix='📚'
-            )
-        except PonyException as ex:
-            self.bot.warn(session, ex)
+        user_ponies = Pony.objects.filter(
+            owner=session.user_id, conversation=session.peer_id, is_alive=True)
+        if not user_ponies.exists():
+            raise PonyNotExist()
+        user_pony = user_ponies.first()
+        user_pony.learn()
+        self.bot.say(
+            session,
+            message=_(
+                f"Ваша пони ({user_pony.name.capitalize()}) учится! Теперь её опыт равен {user_pony.experience}"),
+            prefix='📚'
+        )

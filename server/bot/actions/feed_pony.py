@@ -18,22 +18,19 @@ class ActionFeedPony(SimpleAction):
         super().__init__(bot=bot)
 
     def call(self, session, message, event):
-        try:
-            user_ponies = Pony.objects.filter(
-                owner=session.user_id,
-                conversation=session.peer_id,
-                is_alive=True
-            )
-            if not user_ponies.exists():
-                raise PonyNotExist()
+        user_ponies = Pony.objects.filter(
+            owner=session.user_id,
+            conversation=session.peer_id,
+            is_alive=True
+        )
+        if not user_ponies.exists():
+            raise PonyNotExist()
 
-            user_pony = user_ponies.first()
-            user_pony.feed()
-            self.bot.say(
-                session,
-                message=_(
-                    f"Ваша пони ({user_pony.name.capitalize()}) покушала и теперь её сытость равна {user_pony.satiety}"),
-                prefix='🍼'
-            )
-        except PonyException as ex:
-            self.bot.warn(session, ex)
+        user_pony = user_ponies.first()
+        user_pony.feed()
+        self.bot.say(
+            session,
+            message=_(
+                f"Ваша пони ({user_pony.name.capitalize()}) покушала и теперь её сытость равна {user_pony.satiety}"),
+            prefix='🍼'
+        )

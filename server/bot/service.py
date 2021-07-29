@@ -3,6 +3,8 @@ import pkgutil
 import inspect
 import importlib
 
+from core.exceptions import PonyException
+
 from .api import BotVkAPI
 from django.utils.crypto import get_random_string
 
@@ -125,11 +127,15 @@ class BotService:
                     user_id=user_id
                 )
                 self.bot.logger.debug(f"Opened new {active_session}")
-                action.call(
-                    session=active_session,
-                    message=message,
-                    event=event
-                )
+                try:
+                    action.call(
+                        session=active_session,
+                        message=message,
+                        event=event
+                    )
+                except PonyException as ex:
+                    self.bot.warn(active_session, str(ex))
+                
                 self.bot.logger.debug(f"Closed {active_session}")
                 active_session.close()
                 return
