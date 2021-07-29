@@ -141,6 +141,10 @@ class Pony(models.Model):
     @property
     def owner_alloc(self):
         return f"[id{self.owner}|{self.owner_title}]"
+    
+    @property
+    def short_name(self):
+        return ' '.join([n.capitalize() for n in self.name.split(' ')])
 
     @property
     def full_name(self):
@@ -226,7 +230,7 @@ class Pony(models.Model):
             self.last_feeding) if self.last_feeding else _("ещё ни разу не кормили")
 
         return _(pony_stats_template.safe_substitute(
-            name=self.name.capitalize(),
+            name=self.short_name,
             dead=_("(мертва)") if not self.is_alive else "",
             race=self.race,
             gender=self.gender,
