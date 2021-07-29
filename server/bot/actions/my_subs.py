@@ -1,3 +1,4 @@
+from core.exceptions import UserNotExist
 from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 
@@ -24,6 +25,4 @@ class ActionMySubs(SimpleAction):
             self.bot.say(session, _(
                 f"Ваша подписка: {sub}"), prefix="💳" if is_subscribed else "")
         except user_model.DoesNotExist:
-            self.bot.warn(session, _(
-                "У вас не существует профиля! Заведите его, создав новую пони."))
-            return
+            raise UserNotExist()

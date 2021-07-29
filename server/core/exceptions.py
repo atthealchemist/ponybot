@@ -23,6 +23,13 @@ class PonyNotExist(PonyException):
             f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
         )
 
+class UserNotExist(PonyException):
+    def __init__(self, pony=None):
+        super().__init__(pony=pony)
+
+    def __str__(self):
+        return _("У вас не существует профиля! Заведите его, создав новую пони.")
+
 class PonyDeadException(PonyException):
     def __init__(self, pony=None):
         super().__init__(pony=pony)
