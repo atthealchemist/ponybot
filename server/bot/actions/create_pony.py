@@ -22,6 +22,11 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
                 answer_message=_("Вашу пони теперь зовут: {0}")),
             Step(
                 func_name='choice',
+                param_name="gender",
+                question=_(f"Выберите пол вашей пони: "),
+                choices=('кобылка', 'жеребец')),
+            Step(
+                func_name='choice',
                 param_name="race",
                 question=_(f"Выберите расу вашей пони: "),
                 choices=('пегас', 'единорог', 'земнопони')),
@@ -65,6 +70,7 @@ class ActionCreatePony(DialogAction, UploadPhotoAction):
             new_pony.set_conversation(
                 session.peer_id, title=self.bot.get_conversation_title(session.peer_id))
             new_pony.set_race(pony_info.get('race'))
+            new_pony.set_gender(pony_info.get('gender'))
 
             if 'avatar_url' in pony_info:
                 new_pony.set_avatar(pony_info.get('avatar_url'))
