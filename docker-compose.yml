@@ -1,0 +1,87 @@
+version: '3'
+
+services:
+  redis:
+    container_name: ponybot-redis
+    image: redis:alpine
+    networks: 
+      - backend
+  
+  db:
+    container_name: ponybot-postgres-db
+    restart: always
+    image: postgres:alpine
+    env_file: .env
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    networks: 
+      - backend
+  
+  server:
+    container_name: ponybot-backend-server
+    restart: always
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    image: ponybot-alpha_server:latest
+    env_file: .env
+    command: server
+    ports:
+      - 8000:8000
+    depends_on: 
+      - db
+      - celery
+    volumes:
+      - ./server:/ponybot/alpha/dev/
+    networks:
+      - frontend
+      - backend
+  
+  bot:
+    container_name: ponybot-bot
+    restart: on-failure
+    image: ponybot-alpha_server:latest
+    entrypoint: ./entrypoint.sh
+    command: bot
+    networks: 
+      - backend
+  
+  celery:
+    container_name: ponybot-celery
+    restart: on-failure
+    image: ponybot-alpha_server:latest
+    entrypoint: ./entrypoint.sh
+    command: celery
+    depends_on: 
+      - redis
+    networks:
+      - backend
+  
+  celery-beat:
+    container_name: ponybot-celery-beat
+    restart: on-failure
+    image: ponybot-alpha_server:latest
+    entrypoint: ./entrypoint.sh
+    command: celery-beat
+    depends_on: 
+      - redis
+    networks:
+      - backend
+
+  nginx:
+    container_name: ponybot-nginx
+    restart: always
+    image: nginx:alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./server/static/:/static/
+    networks: 
+      - frontend
+
+networks:
+  frontend:
+  backend:
