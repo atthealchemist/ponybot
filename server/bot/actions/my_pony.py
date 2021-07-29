@@ -1,4 +1,4 @@
-from bot.actions.create_pony import ActionCreatePony
+from core.exceptions import PonyNotExist
 from django.utils.translation import gettext as _
 
 from core.models import Pony
@@ -20,15 +20,12 @@ class ActionMyPonyProfile(SimpleAction):
     def call(self, session, message, event):
         user_ponies = Pony.objects.filter(owner=session.user_id, is_alive=True)
         if not user_ponies.exists():
-            self.bot.warn(session, _(
-                f"У вас ещё нет ни одной пони!\nЗаведите её, написав одну из следующих команд: {str(ActionCreatePony())}"
-            ))
-            return
+            raise PonyNotExist()
         self.bot.say(session, _(f"Ваши пони:\n"))
         for idx, pony in enumerate(user_ponies):
             self.bot.say(
                 session,
                 message=f"{idx + 1}. {str(pony)}",
-                no_alloc=True,
+                mention=False,
                 attachment=pony.avatar_url if pony.avatar_url else ""
             )
