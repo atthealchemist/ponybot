@@ -12,7 +12,7 @@ class ActionGetId(SimpleAction):
         super().__init__(bot)
 
     def call(self, session, message, event):
-        self.say(session.peer_id,
+        self.say(session,
                  _(f"""
                         Ваш ID (user_id/from_id): {session.user_id}
                         ID группы (group_id): {event.group_id}

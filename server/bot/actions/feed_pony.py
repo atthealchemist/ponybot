@@ -30,10 +30,10 @@ class ActionFeedPony(SimpleAction):
             user_pony = user_ponies.first()
             user_pony.feed()
             self.bot.say(
-                session.peer_id,
+                session,
                 message=_(
                     f"Ваша пони ({user_pony.name.capitalize()}) покушала и теперь её сытость равна {user_pony.satiety}"),
                 prefix='🍼'
             )
         except PonyException as ex:
-            self.bot.warn(session.peer_id, ex)
+            self.bot.warn(session, ex)
