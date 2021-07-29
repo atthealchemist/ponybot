@@ -116,7 +116,7 @@ class BotService:
                 self.bot.logger.debug("Already opened session")
                 return
 
-            if any([a for a in related_action.aliases if message.lower() in a.lower()]):
+            if any([a for a in related_action.aliases if message.lower() == a.lower()]):
                 if related_action.is_admin_only and not called_user.is_admin():
                     self.warn(peer_id, _(
                         "У вас недостаточно прав для доступа к этой команде!"))
