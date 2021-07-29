@@ -202,24 +202,24 @@ class Pony(models.Model):
         # print('fields', fields)
         pony_stats_template = Template(
             """
-            🐎\tName: $name $dead
-            👬\tRace: $race
-            ⚤\tGender: $gender
-            📖\tLevel: $experience
-            🍎\tSatiety: $satiety
+            🐎\tИмя: $name $dead
+            👬\tРаса: $race
+            ⚤\tПол: $gender
+            📖\tУровень: $experience
+            🍎\tСытость: $satiety
             ---
-            👥\tOwner: $user
-            💬\tConversation: [id$conversation|$conversation_title]
+            👥\tВладелец: $user
+            💬\tБеседа: [id$conversation|$conversation_title]
             ---
-            📚\tLast learning: $last_learning
-            🍼\tLast feeding: $last_feeding
+            📚\tПоследний раз учили: $last_learning
+            🍼\tПоследний раз кормили: $last_feeding
             """
         )
 
         last_learning = humanize_time(
-            self.last_learning) if self.last_learning else "ещё ни разу не учили"
+            self.last_learning) if self.last_learning else _("ещё ни разу не учили")
         last_feeding = humanize_time(
-            self.last_feeding) if self.last_feeding else "ещё ни разу не кормили"
+            self.last_feeding) if self.last_feeding else _("ещё ни разу не кормили")
 
         return _(pony_stats_template.safe_substitute(
             name=self.name.capitalize(),
