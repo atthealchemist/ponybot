@@ -11,8 +11,7 @@ services:
     container_name: ponybot-postgres-db
     restart: always
     image: postgres:alpine
-    environment:
-      POSTGRES_PASSWORD: \!ponybot_dev_user\!
+    env_file: .env
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
@@ -53,9 +52,9 @@ services:
     restart: on-failure
     image: ponybot-alpha_server:latest
     entrypoint: ./entrypoint.sh
+    command: celery
     depends_on: 
       - redis
-    command: celery
     networks:
       - backend
   
@@ -64,9 +63,9 @@ services:
     restart: on-failure
     image: ponybot-alpha_server:latest
     entrypoint: ./entrypoint.sh
+    command: celery-beat
     depends_on: 
       - redis
-    command: celery-beat
     networks:
       - backend
 
