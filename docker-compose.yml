@@ -25,6 +25,7 @@ services:
     build: 
       context: ./server
       dockerfile: Dockerfile
+    image: ponybot-alpha_server:latest
     env_file: .env
     command: server
     ports:
