@@ -45,7 +45,7 @@ services:
   
   bot:
     container_name: ponybot-bot
-    restart: on-failure
+    restart: 'no'
     image: ponybot-alpha_server:latest
     build:
       context: ./bot
