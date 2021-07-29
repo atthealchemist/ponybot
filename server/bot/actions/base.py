@@ -62,7 +62,7 @@ class DialogStep:
 class DialogAction(SimpleAction):
 
     def ask(self, session, question, answer_message=None):
-        self.bot.say(session, question.lower())
+        self.bot.say(session, question)
         for user_id, peer_id, message, event in self.bot.listen_new_messages():
             if 'action' in event.object.message:
                 break
