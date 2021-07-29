@@ -40,11 +40,30 @@ class Race(TextChoices):
         return mapping.get(choice)
 
 
+class Gender(TextChoices):
+    STALLION = _("Жеребец")
+    MARE = _("Кобылка")
+
+    @classmethod
+    def choice_list(cls):
+        return [c.value.lower() for c in cls.values]
+
+    @classmethod
+    def from_user_choice(cls, choice):
+        mapping = {
+            'жеребец': cls.STALLION,
+            'кобылка': cls.MARE
+        }
+        return mapping.get(choice)
+
+
 class Pony(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_("Name"), max_length=64, blank=True)
     race = models.CharField(
         _("Race"), max_length=12, choices=Race.choices, default=Race.EARTHPONY)
+    gender = models.CharField(
+        _("Gender"), max_length=10, choices=Gender.choices, default=Gender.STALLION)
     experience = models.PositiveSmallIntegerField(
         _("Level"),
         default=1,
@@ -90,6 +109,10 @@ class Pony(models.Model):
     def set_race(self, race):
         self.race = Race.from_user_choice(race)
         self.save(update_fields=['race'])
+    
+    def set_gender(self, gender):
+        self.gender = Gender.from_user_choice(gender)
+        self.save(update_fields=['gender'])
 
     def set_owner(self, owner_id, title=''):
         self.owner = str(owner_id)
@@ -176,11 +199,12 @@ class Pony(models.Model):
     def __str__(self):
         fields = [
             f"{f.verbose_name}: {f.value_from_object(self)}" for f in self._meta.fields]
-        print('fields', fields)
+        # print('fields', fields)
         pony_stats_template = Template(
             """
             🐎\tName: $name $dead
-            👬\tRace: $sex
+            👬\tRace: $race
+            ⚤\tGender: $gender
             📖\tLevel: $experience
             🍎\tSatiety: $satiety
             ---
@@ -200,7 +224,8 @@ class Pony(models.Model):
         return _(pony_stats_template.safe_substitute(
             name=self.name.capitalize(),
             dead=_("(мертва)") if not self.is_alive else "",
-            sex=self.race,
+            race=self.race,
+            gender=self.gender,
             experience=self.experience,
             satiety=self.satiety,
             user=self.owner_alloc,
