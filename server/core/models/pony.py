@@ -149,6 +149,12 @@ class Pony(models.Model):
     @property
     def full_name(self):
         return f'{self.name} из беседы "{self.conversation_title}"'
+    
+    def hunger(self):
+        self.satiety -= 1
+        if self.satiety < 1:
+            self.die()
+        self.save(update_fields=['satiety'])
 
     def feed(self):
         if not self.is_alive:
