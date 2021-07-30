@@ -1,3 +1,4 @@
+import constance
 from .models import Pony
 
 from constance import config
@@ -19,7 +20,8 @@ def teach_ponies():
                 pony, 
                 f"{pony.name} выучила что-то новенькое! "
                 f"Опыт увеличился на {exp_points} и стал равен {pony.experience}.",
-                mention=True
+                mention=True,
+                prefix=constance.PONY_ICON_LEARNING
             )
 
 
