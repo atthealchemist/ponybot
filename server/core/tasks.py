@@ -1,3 +1,4 @@
+import constance
 from .models import Pony
 
 from constance import config
@@ -11,15 +12,16 @@ from core.celery import app, api
 @app.task
 def teach_ponies():
     for pony in Pony.objects.filter(is_alive=True):
-        estimated_educated_time = pony.last_learning + timedelta(minutes=config.PONY_SELF_EDUCATION_MINUTES)
+        estimated_educated_time = pony.last_learning + timedelta(minutes=config.PONY_SELF_EDUCATION_MINS)
         now = timezone.now()
         if now >= estimated_educated_time:
             exp_points = pony.learn()
             api.notify(
                 pony, 
                 f"{pony.name} выучила что-то новенькое! "
-                f"Опыт увеличился на {exp_points}.",
-                mention=True
+                f"Опыт увеличился на {exp_points} и стал равен {pony.experience}.",
+                mention=True,
+                prefix=constance.PONY_ICON_LEARNING
             )
 
 
