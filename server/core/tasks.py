@@ -12,6 +12,8 @@ from core.celery import app, api
 @app.task
 def teach_ponies():
     for pony in Pony.objects.filter(is_alive=True):
+        if not pony.last_learning:
+            continue
         estimated_educated_time = pony.last_learning + timedelta(minutes=config.PONY_SELF_EDUCATION_MINS)
         now = timezone.now()
         if now >= estimated_educated_time:
@@ -28,6 +30,8 @@ def teach_ponies():
 @app.task
 def starvy_ponies():
     for pony in Pony.objects.filter(is_alive=True):
+        if not pony.last_feeding:
+            continue
         # Пони начинает голодать через определённый период:
         # Например, через 30 секунд после предыдущей покормки
         # То есть, если сейчас больше, чем 3 минут после последнего корма -
