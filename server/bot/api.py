@@ -34,6 +34,12 @@ class BotVkAPI(BotAPI):
         message = ' '.join([prefix, content, suffix])
         self.send_message(session.peer_id, message=message,
                           attachment=attachment)
+    
+    def notify(self, pony, message, prefix='', suffix=''):
+        user = get_user_model().objects.get(username=pony.owner)
+        content = f"{user.alloc}, {message[:1].lower() + message[1:]}"
+        message = ' '.join([prefix, content, suffix])
+        self.send_message(pony.conversation, message=message)
 
     def congratulate(self, session, message, attachment=None):
         self.say(session, message=f"✅ {message} ✅", attachment=attachment)
