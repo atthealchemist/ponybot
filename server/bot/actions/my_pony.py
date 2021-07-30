@@ -18,7 +18,7 @@ class ActionMyPonyProfile(SimpleAction):
         super().__init__(bot)
 
     def call(self, session, message, event):
-        user_ponies = Pony.objects.filter(owner=session.user_id, is_alive=True)
+        user_ponies = Pony.objects.filter(owner=session.user_id)
         if not user_ponies.exists():
             raise PonyNotExist()
         self.bot.say(session, _(f"Ваши пони:\n"))

@@ -34,6 +34,12 @@ class BotVkAPI(BotAPI):
         message = ' '.join([prefix, content, suffix])
         self.send_message(session.peer_id, message=message,
                           attachment=attachment)
+    
+    def notify(self, pony, message, prefix='', suffix='', mention=False):
+        user = get_user_model().objects.get(username=pony.owner)
+        content = f"{user.alloc}, {message}"
+        message = ' '.join([prefix, content, suffix])
+        self.send_message(pony.conversation, message=message, mention=mention)
 
     def congratulate(self, session, message, attachment=None):
         self.say(session, message=f"✅ {message} ✅", attachment=attachment)
@@ -54,13 +60,13 @@ class BotVkAPI(BotAPI):
         )[0]
         return f"{user_info.get('first_name')} {user_info.get('last_name')}"
 
-    def send_message(self, receiver, message, attachment=None):
+    def send_message(self, receiver, message, attachment=None, mention=False):
         self.api.messages.send(
             peer_id=receiver,
             message=message,
             random_id=get_random_id(),
             attachment=attachment,
-            disable_mentions=True
+            disable_mentions=not mention
         )
 
     def upload_photo(self, photos, peer_id):
