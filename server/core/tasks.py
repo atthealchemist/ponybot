@@ -18,7 +18,7 @@ def teach_ponies():
             api.notify(
                 pony, 
                 f"{pony.name} выучила что-то новенькое! "
-                f"Опыт увеличился на {exp_points}.",
+                f"Опыт увеличился на {exp_points} и стал равен {pony.experience}.",
                 mention=True
             )
 
