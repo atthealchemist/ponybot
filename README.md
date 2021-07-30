@@ -14,7 +14,7 @@ sudo apt install docker-ce git
 ```bash
 git clone https://github.com/atthealchemist/ponybot.git -b alpha
 ```
-где `|b alpha` | версия проекта, которую мы хотим запустить
+где `-b alpha` - версия проекта, которую мы хотим запустить
 3. Переходим в репозиторий с проектом
 ```bash
 cd ponybot/
