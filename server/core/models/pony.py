@@ -1,6 +1,7 @@
 from django.db import models
 
 import uuid
+import math
 from string import Template
 from datetime import timedelta
 
@@ -201,8 +202,12 @@ class Pony(models.Model):
                     raise PonyTiredException(self)
             except OverflowError:
                 pass
-
-        points = self.satiety + (abs(10 - self.satiety) / 2) - 5
+        
+        # Сытость + |10 - Сытость|
+        # ------------------------ - 5
+        #           2
+        # Исходная формула: (Сытость + |10 - Сытость|)/2-5
+        points = (self.satiety + abs(10 - self.satiety) / 2) - 5
 
         self.experience += int(points)
         self.last_learning = timezone.now()
