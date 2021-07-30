@@ -11,7 +11,7 @@ from core.celery import app, api
 @app.task
 def teach_ponies():
     for pony in Pony.objects.filter(is_alive=True):
-        estimated_educated_time = pony.last_learning + timedelta(minutes=config.PONY_SELF_EDUCATION_MINUTES)
+        estimated_educated_time = pony.last_learning + timedelta(minutes=config.PONY_SELF_EDUCATION_MINS)
         now = timezone.now()
         if now >= estimated_educated_time:
             exp_points = pony.learn()
