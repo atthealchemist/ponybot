@@ -55,7 +55,6 @@ class Dev(Configuration):
     CONSTANCE_CONFIG = {
         'PONY_SELF_EDUCATION_MINS': (30, 'Pony self education period (in mins)', int),
         'PONY_HUNGER_MINS': (30, 'Pony hunger period (in mins)', int),
-        'PONY_STARVATION_PERIOD_MINS': (30, 'Pony starvation period (mins count to next satiety decrease)', int),
         'PONY_LEARNING_TIMEOUT_MINS': (5, 'Pony learning timeout (in mins)', int),
         'PONY_FEEDING_TIMEOUT_MINS': (7, 'Pony feeding timeout (in mins)', int),
         'PONY_BOT_ADMINS_LIST': ("", "Ponybot admins user_id list, separated by comma", str),
