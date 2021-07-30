@@ -17,8 +17,9 @@ def teach_ponies():
             exp_points = pony.learn()
             api.notify(
                 pony, 
-                f"{pony.name} выучила что-то новенькое!"
-                f"Опыт увеличился на {exp_points}."
+                f"{pony.name} выучила что-то новенькое! "
+                f"Опыт увеличился на {exp_points}.",
+                mention=True
             )
 
 
@@ -37,7 +38,8 @@ def starvy_ponies():
             pony.hunger()
             api.notify(
                 pony, 
-                f"{pony.name} голодает!"
-                f"Сытость уменьшилась на 1 и теперь равна {pony.satiety}!" 
-                "Покормите её, или она умрёт!"
+                f"{pony.name} голодает! "
+                f"Сытость уменьшилась на 1 и теперь равна {pony.satiety}! " 
+                "Покормите её, или она умрёт!",
+                mention=True
             )
