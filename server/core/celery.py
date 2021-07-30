@@ -6,7 +6,7 @@ from celery import Celery
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 os.environ.setdefault("DJANGO_CONFIGURATION", "Dev")
 
-starvation_period_mins = os.environ.get("DJANGO_TASK_STARVATION_PERIOD_MINS", 1)
+starvation_period_mins = int(os.environ.get("DJANGO_TASK_STARVATION_PERIOD_MINS", '1'))
 
 configurations.setup()
 
