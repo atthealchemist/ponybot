@@ -37,7 +37,7 @@ class BotVkAPI(BotAPI):
     
     def notify(self, pony, message, prefix='', suffix='', mention=False):
         user = get_user_model().objects.get(username=pony.owner)
-        content = f"{user.alloc}, {message[:1].lower() + message[1:]}"
+        content = f"{user.alloc}, {message}"
         message = ' '.join([prefix, content, suffix])
         self.send_message(pony.conversation, message=message, mention=mention)
 
