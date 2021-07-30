@@ -22,8 +22,7 @@ def teach_ponies():
                 pony, 
                 f"{pony.name} выучила что-то новенькое! "
                 f"Опыт увеличился на {exp_points} и стал равен {pony.experience}.",
-                mention=True,
-                prefix=constance.PONY_ICON_LEARNING
+                mention=True
             )
 
 
